@@ -8,6 +8,7 @@ class Matrix
 private:
 	std::out_of_range out_of_range_error("Matrix indices out of range"); // create our outofrange error
 	std::invalid_argument matrix_wrong_size("The passed matix is not of the same size as the base");
+	std::domain_error cannot_find_inverse("");
 
 	/// <summary>
 	/// Checks if a passed matrix is the same size as one passed through
@@ -26,6 +27,115 @@ private:
 	/// <returns></returns>
 	bool isOutOfRange(unsigned int x, unsigned int y) {
 		return x >= dimx_ || y >= dimy_
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="row"></param>
+	/// <returns></returns>
+	std::vector<T> getRow(int row) {
+		if (row > dimy_)
+			throw out_of_range_error;
+		std::vector<T> temp;
+		for (int i = row; i < dimy_; i++)
+			temp.push_back(inner_[i]);
+		return temp;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="row"></param>
+	/// <returns></returns>
+	std::vector<T> getColumn(int column) {
+		if (column > dimx_)
+			throw out_of_range_error;
+		std::vector<T> temp;
+		for (int i = row; i < dimx_; i++)
+			temp.push_back(inner_[i] + dimx_ * i);
+		return temp;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="matrixOne"></param>
+	/// <param name="matrixTwo"></param>
+	/// <param name="out"></param>
+	void multiply(Matrix<T> matrixOne, Matrix<T> matrixTwo, Matrix<T>& out) {
+		for (int i = 0; i < dimx_; i++)
+		{
+			for (int j = 0; j < dimy_; j++)
+			{
+				out.add(i, j, 0) = 0;
+				for (int k = 0; k < matrixOne.dimx_; k++)
+					out.getAt(i, j) += matrixOne.getAt(i, k) *
+					matrixTwo.getAt(k, j);
+			}
+		}
+	}
+
+	// TODO : rename all the one letter variables to something actually meaningful and useful
+
+	void getCofactor(Matrix<T> M, Matrix<T> t, int p, int q, int n) {
+		int i = 0, j = 0;
+		for (int r = 0; r < n; r++) {
+			for (int c = 0; c < n; c++) { //Copy only those elements which are not in given row r and column c: 
+				if (r != p && c != q) {
+					t.getAt(i, j++) = M.getAt(r, c); //If row is filled increase r index and reset c index
+					if (j == n - 1) {
+						j = 0; i++;
+					}
+				}
+			}
+		}
+	}
+
+	int determinant(Matrix<T>& M, int n) { //to find determinant 
+		int D = 0;
+		if (n == 1)
+			return M.getAt(0, 0);
+		Matrix<T> t(M.size(), M.size()); //store cofactors
+		int s = 1; //store sign multiplier 
+				   //To Iterate each element of first row
+		for (int f = 0; f < n; f++) {
+			//For Getting Cofactor of M[0][f] do getCofactor(M, t, 0, f, n); D += s * M[0][f] * DET(t, n - 1);
+			s = -s;
+		}
+		return D;
+	}
+
+	void adjoint(Matrix<T>& M, Matrix<T>& adj) {
+		//to find adjoint matrix 
+		if (M.size() == 1) {
+			adj.getAt(0, 0) = 1;
+			return;
+		}
+		int s = 1,
+			Matrix<T> t(M.size(), M.size());
+		for (int i = 0; i < M.size(); i++) {
+			for (int j = 0; j < M.size(); j++) {
+				//To get cofactor of M[i][j]
+				getCofactor(M, t, i, j, M.size());
+				s = ((i + j) % 2 == 0) ? 1 : -1; //sign of adj[j][i] positive if sum of row and column indexes is even.
+				adj.getAt(j, i) = (s) * (determinant(t, M.size() - 1)); //Interchange rows and columns to get the transpose of the cofactor matrix
+			}
+		}
+	}
+
+	bool inverse(Matrix<T> M, Matrix<T>& inv) {
+		int det = determinant(M, M.size());
+		if (det == 0) {
+			throw cannot_find_inverse;
+			return false;
+		}
+		Matrix<T> adj(M.size(), M.size());
+		adjoint(M, adj);
+		for (int i = 0; i < M.size(); i++)
+			for (int j = 0; j < M.size(); j++)
+				inv.getAt(i, j) = adj.getAt(i, j) / T(det);
+		return true;
 	}
 
 public:
@@ -83,15 +193,19 @@ public:
 		inner_[dimx_ * y + x] = value;
 	}
 
+	// matrix operations
+
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="arg"></param>
-	/// <returns></returns>
-	Matrix<T>& operator=(Matrix<T> arg) {
-		if (this != arg)
-			this = arg;
+	void invert() {
+		if (dimx_ != dimy_)
+			throw matrix_not_n_by_n;
+		if (!inverse(*this, *this))
+			throw cannot_find_inverse;
 	}
+
+	// operators
 
 	/// <summary>
 	/// 
@@ -105,6 +219,16 @@ public:
 			if (inner_[i] != arg.inner_[i])
 				return false;
 		return true;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="arg"></param>
+	/// <returns></returns>
+	Matrix<T>& operator=(Matrix<T> arg) {
+		if (this != arg)
+			this = arg;
 	}
 
 	// Binary arithmetic operators
@@ -134,15 +258,18 @@ public:
 			inner_[i] -= arg.getAt(i % dimx_, i / dimy_);
 		return *this;
 	}
-	
+
 	/// <summary>
 	/// 
 	/// </summary>
 	/// <param name="arg"></param>
 	/// <returns></returns>
+	/// TODO : make this more efficient
 	Matrix<T>& operator*(Matrix<T> arg) {
-		//TODO : find a way to properly multiply
-		return *this;
+
+		Matrix<T> temp(dimx_, dimy_);
+		multiply(this, arg, temp);
+		return temp;
 	}
 
 	/// <summary>
@@ -199,15 +326,11 @@ public:
 	}
 
 	size_type size() const {
-
+		return dimx_;
 	}
 
 	size_type max_size() const {
 		return std::vector.max_size();
-	}
-
-	reference at(const key_type& key) {
-
 	}
 
 	const_reference at(const key_type& key) const {
