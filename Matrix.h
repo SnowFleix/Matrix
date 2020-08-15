@@ -3,6 +3,11 @@
 #include <vector>
 #include <typeinfo>
 
+#include "J:\SDKs\root_v5.34.36.win32\include\TH1C.h"
+#include "J:\SDKs\root_v5.34.36.win32\include\TH1K.h"
+
+#include "J:\SDKs\root_v5.34.36.win32\include\TH2F.h"
+#include "J:\SDKs\root_v5.34.36.win32\include\TH3F.h"
 
 namespace matracies {
 
@@ -281,30 +286,57 @@ namespace matracies {
 		}
 
 #ifdef ROOT_TH1
-
-		TH1 toTH1() {
-
+		TH1* toTH1(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
+			TH1* temp(name, title, nbinsx, xlow, xup);
+			// fill 
+			for (int i = 0; i < inner_.size(); i++)
+				if (inner_[i] > 0)
+					temp->Fill(i / dimx_, weight);
+			return temp;
 		}
+
+#ifdef ROOT_TH1F
+		TH1F* toTH1F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
+			if (!(typeid(T).name == "float" ||
+				typeid(T).name == "float_t" ||
+				typeid(T).name == "Float_T"))
+				throw wrong_data_type;
+			return toTH1(name, title, nbinsx, xlow, xup, weight);
+		}
+#endif
+
+#ifdef ROOT_TH1D
+		TH1F* toTH1F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
+			if (!(typeid(T).name == "double" ||
+				typeid(T).name == "Double_t" ||
+				typeid(T).name == "double_t"))
+				throw wrong_data_type;
+			return toTH1(name, title, nbinsx, xlow, xup, weight);
+		}
+#endif
+
+#ifdef ROOT_TH1I
+		TH1I* toTH1I(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
+			if (!(typeid(T).name == "__int32" ||
+				typeid(T).name == "int32_t""Double_t" ||
+				typeid(T).name == "double_t"))
+				throw wrong_data_type;
+			return toTH1(name, title, nbinsx, xlow, xup, weight);
+		}
+#endif 
 
 #endif
 
 #ifdef ROOT_TH2
 
-		TH2 toTH2() {
-
-		}
-
-#endif
-
-#ifdef ROOT_TH3
-
-		TH3 toTH3() {
+		TH2* toTH2() {
 
 		}
 
 #endif
 
 #ifdef ROOT_TMatrixT
+#ifdef ROOT_TMatrix
 
 		Matrix(TMatrix tMatrix)
 			: dimx_(tMatrix.GetNrows()), dimy_(tMatrix.GetNcols()) {
@@ -314,24 +346,33 @@ namespace matracies {
 			inner_ = tMatrix.GetMatrixArray();
 		}
 
+		operator TMatrix() const {
+			TMatrix temp(dimx_, dimy_);
+			for (int i = 0; i < inner_.size(); i++)
+				temp[i % dimx_][i / dimy_] = inner_[i];
+			return temp;
+		}
+
+		Matrix<T>& operator=(TMatrix<T> arg) {
+			return Matrix<T>(arg);
+		}
+
+		TMatrix toTMatrix() {
+			if (!typeid(T).name() == "Float_T")
+				throw wrong_data_type;
+			return static_cast<TMatrix>(*this);
+		}
+
+#endif
+
 		Matrix(TMatrixT<T> tMatrix)
 			: dimx_(tMatrix.GetNrows()), dimy_(tMatrix.GetNcols()) {
 			inner_.resize(dimx_ * dimy_);
 			inner_ = tMatrix.GetMatrixArray();
 		}
 
-		TMatrix toTMatrix() {
-			if (!typeid(T).name() == "Float_T")
-				throw wrong_data_type;
-		}
-
-		// type casts
-
-		operator TMatrix() const {
-			TMatrix temp(dimx_, dimy_);
-			for (int i = 0; i < inner_.size(); i++)
-				temp[i % dimx_][i / dimy_] = inner_[i];
-			return temp;
+		TMatrixT<T> toTMatrixT() {
+			return static_cast<TMatrixT<T>>(*this);
 		}
 
 		operator TMatrixT<T>() const {
@@ -341,16 +382,9 @@ namespace matracies {
 			return temp;
 		}
 
-		// operators
-
 		Matrix<T>& operator=(TMatrixT<T> arg) {
 			return Matrix<T>(arg);
 		}
-
-		Matrix<T>& operator=(TMatrixT<T> arg) {
-			return Matrix<T>(arg);
-		}
-
 
 #endif
 
