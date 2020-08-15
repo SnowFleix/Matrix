@@ -281,15 +281,19 @@ namespace matracies {
 		}
 
 #ifdef ROOT_TH1
+
 		TH1 toTH1() {
 
 		}
+
 #endif
 
 #ifdef ROOT_TH2
+
 		TH2 toTH2() {
 
 		}
+
 #endif
 
 #ifdef ROOT_TH3
@@ -325,14 +329,28 @@ namespace matracies {
 
 		operator TMatrix() const {
 			TMatrix temp(dimx_, dimy_);
-			temp.operator[]
+			for (int i = 0; i < inner_.size(); i++)
+				temp[i % dimx_][i / dimy_] = inner_[i];
+			return temp;
 		}
 
-		operator TMatrix<T>() const {
-
+		operator TMatrixT<T>() const {
+			TMatrix temp(dimx_, dimy_);
+			for (int i = 0; i < inner_.size(); i++)
+				temp[i % dimx_][i / dimy_] = inner_[i];
+			return temp;
 		}
 
 		// operators
+
+		Matrix<T>& operator=(TMatrixT<T> arg) {
+			return Matrix<T>(arg);
+		}
+
+		Matrix<T>& operator=(TMatrixT<T> arg) {
+			return Matrix<T>(arg);
+		}
+
 
 #endif
 
