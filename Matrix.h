@@ -1,6 +1,7 @@
 #pragma once
 #include <stdexcept>
 #include <vector>
+#include <typeinfo>
 
 
 namespace matracies {
@@ -201,6 +202,15 @@ namespace matracies {
 			return this / arg;
 		}
 
+		/// <summary>
+		/// Allows users to do Matrix[x][y]
+		/// </summary>
+		/// <param name="index"></param>
+		/// <returns></returns>
+		std::vector<T>& operator[](int index) {
+			return getColumn(index);
+		}
+
 		// STL functions
 
 		/* Selectors */
@@ -271,14 +281,22 @@ namespace matracies {
 		}
 
 #ifdef ROOT_TH1
+		TH1 toTH1() {
 
+		}
 #endif
 
 #ifdef ROOT_TH2
+		TH2 toTH2() {
 
+		}
 #endif
 
 #ifdef ROOT_TH3
+
+		TH3 toTH3() {
+
+		}
 
 #endif
 
@@ -286,17 +304,43 @@ namespace matracies {
 
 		Matrix(TMatrix tMatrix)
 			: dimx_(tMatrix.GetNrows()), dimy_(tMatrix.GetNcols()) {
+			if (!typeid(T).name() == "Float_T")
+				throw wrong_data_type;
 			inner_.resize(dimx_ * dimy_);
+			inner_ = tMatrix.GetMatrixArray();
+		}
+
+		Matrix(TMatrixT<T> tMatrix)
+			: dimx_(tMatrix.GetNrows()), dimy_(tMatrix.GetNcols()) {
+			inner_.resize(dimx_ * dimy_);
+			inner_ = tMatrix.GetMatrixArray();
+		}
+
+		TMatrix toTMatrix() {
+			if (!typeid(T).name() == "Float_T")
+				throw wrong_data_type;
+		}
+
+		// type casts
+
+		operator TMatrix() const {
+			TMatrix temp(dimx_, dimy_);
+			temp.operator[]
+		}
+
+		operator TMatrix<T>() const {
 
 		}
 
-#endif
+		// operators
 
+#endif
 
 	private:
 		std::out_of_range out_of_range_error("Matrix indices out of range"); // create our outofrange error
 		std::invalid_argument matrix_wrong_size("The passed matix is not of the same size as the base");
-		std::domain_error cannot_find_inverse("");
+		std::invalid_argument wrong_data_type("The passed datatype does not match that used in the function");
+		std::domain_error cannot_find_inverse("Cannot find the inverse of the matrix");
 
 		/// <summary>
 		/// Checks if a passed matrix is the same size as one passed through
@@ -322,11 +366,12 @@ namespace matracies {
 		/// </summary>
 		/// <param name="row"></param>
 		/// <returns></returns>
-		std::vector<T> getRow(int row) {
+		/// <remarks>returns a reference to a temp variable</remarks>
+		std::vector<T>& getRow(int row) {
 			if (row > dimy_)
 				throw out_of_range_error;
 			std::vector<T> temp;
-			for (int i = row; i < dimy_; i++)
+			for (int i = row * dimy_; i < dimx_; i++)
 				temp.push_back(inner_[i]);
 			return temp;
 		}
