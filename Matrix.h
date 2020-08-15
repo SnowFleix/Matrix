@@ -3,12 +3,6 @@
 #include <vector>
 #include <typeinfo>
 
-#include "J:\SDKs\root_v5.34.36.win32\include\TH1C.h"
-#include "J:\SDKs\root_v5.34.36.win32\include\TH1K.h"
-
-#include "J:\SDKs\root_v5.34.36.win32\include\TH2F.h"
-#include "J:\SDKs\root_v5.34.36.win32\include\TH3F.h"
-
 namespace matracies {
 
 	template <class T, class alloc = std::allocator<T>>
@@ -269,6 +263,14 @@ namespace matracies {
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <returns></returns>
+		size_t vecSize() {
+			return inner_.size();
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
 		/// <param name="key"></param>
 		void erase(const key_type& key) {
 			delete inner_;
@@ -297,9 +299,7 @@ namespace matracies {
 
 #ifdef ROOT_TH1F
 		TH1F* toTH1F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
-			if (!(typeid(T).name == "float" ||
-				typeid(T).name == "float_t" ||
-				typeid(T).name == "Float_T"))
+			if (!isFloat())
 				throw wrong_data_type;
 			return toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
@@ -307,9 +307,7 @@ namespace matracies {
 
 #ifdef ROOT_TH1D
 		TH1F* toTH1F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
-			if (!(typeid(T).name == "double" ||
-				typeid(T).name == "Double_t" ||
-				typeid(T).name == "double_t"))
+			if (!isDouble())
 				throw wrong_data_type;
 			return toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
@@ -317,21 +315,97 @@ namespace matracies {
 
 #ifdef ROOT_TH1I
 		TH1I* toTH1I(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
-			if (!(typeid(T).name == "__int32" ||
-				typeid(T).name == "int32_t""Double_t" ||
-				typeid(T).name == "double_t"))
+			if (!isInt32())
 				throw wrong_data_type;
 			return toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
+#endif 
+
+#ifdef ROOT_TH1S
+		TH1S* toTH1S(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
+			if (!isShort())
+				throw wrong_data_type;
+			return toTH1(name, title, nbinsx, xlow, xup, weight);
+		}
+#endif 
+
+#ifdef ROOT_TH1C
+		TH1C* toTH1C(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
+			if (!isChar())
+				throw wrong_data_type;
+			return toTH1(name, title, nbinsx, xlow, xup, weight);
+		}
+#endif 
+
+#ifdef ROOT_TH1K
+		// k neighbour class TODO : read through ROOT documentation more to use see how it differs from the other TH1
 #endif 
 
 #endif
 
 #ifdef ROOT_TH2
 
-		TH2* toTH2() {
-
+		TH2* toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, 
+			       Int_t nbinsy, Double_t ylow, Double_t yup) {
+			TH2* temp(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
+			for (int i = 0; i < inner_.size(); i++)
+				if (inner_[i] > 0)
+					temp->Fill(i / dimx_, i % dimy_, inner_[i]); // uses the element as the weight
+			return temp;
 		}
+
+#ifdef ROOT_TH2F
+		TH2F* toTH2F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
+			Int_t nbinsy, Double_t ylow, Double_t yup) {
+			if (!)
+				throw wrong_data_type;
+			return toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
+		}
+#endif
+
+#ifdef ROOT_TH2D
+		TH2D* toTH2D(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
+			Int_t nbinsy, Double_t ylow, Double_t yup) {
+			if (!isDouble())
+				throw wrong_data_type;
+			return toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
+		}
+#endif
+
+#ifdef ROOT_TH2S
+		TH2S* toTH2S(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
+			Int_t nbinsy, Double_t ylow, Double_t yup) {
+			if (!isShort())
+				throw wrong_data_type;
+			return toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
+		}
+#endif
+
+#ifdef ROOT_TH2I
+		TH2I* toTH2I(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
+			Int_t nbinsy, Double_t ylow, Double_t yup) {
+			if (!isInt32())
+				throw wrong_data_type;
+			return toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
+		}
+#endif
+
+#ifdef ROOT_TH2C
+		TH2C* toTH2C(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
+			Int_t nbinsy, Double_t ylow, Double_t yup) {
+			if (!isChar())
+				throw wrong_data_type;
+			return toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
+		}
+#endif
+
+#ifdef ROOT_TH2GL
+		// implement later
+#endif
+
+#ifdef ROOT_TH2Poly
+		// implement later
+#endif
 
 #endif
 
@@ -393,6 +467,46 @@ namespace matracies {
 		std::invalid_argument matrix_wrong_size("The passed matix is not of the same size as the base");
 		std::invalid_argument wrong_data_type("The passed datatype does not match that used in the function");
 		std::domain_error cannot_find_inverse("Cannot find the inverse of the matrix");
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		bool isInt32() {
+			return typeid(T).name == "__int32" || typeid(T).name == "int32_t";
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		bool isDouble() {
+			return typeid(T).name == "double" || typeid(T).name == "Double_t" || typeid(T).name == "double_t";
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		bool isFloat() {
+			return typeid(T).name == "float" || typeid(T).name == "float_t" || typeid(T).name == "Float_t";
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		bool isShort() {
+			return typeid(T).name == "short" || typeid(T).name == "Short_t";
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		bool isChar() {
+			return typeid(T).name == "char" || typeid(T).name == "Char_t";
+		}
 
 		/// <summary>
 		/// Checks if a passed matrix is the same size as one passed through
@@ -548,13 +662,13 @@ namespace matracies {
 
 		// TODO : refactor so it's much better code
 		// outputs the matrix in text format
-		friend ostream& operator<<(ostream& os, Matrix& matrix) {
-			string builder = "";
-			for (int loop = 0; loop < matrix.inner_.size(); loop++) {
+		friend std::ostream& operator<<(std::ostream& os, Matrix<T>& matrix) {
+			std::string builder = "";
+			for (int loop = 0; loop < matrix.vecSize(); loop++) {
 				if (loop % matrix.dimx_ == 0 && i != 0) {
 					builder += "\n";
 				}
-				builder += "(" + matrix.getAt(loop % matrix.dimx_, loop / matrix.dimy_).toString() + ") "; i++;
+				builder += "(" + matrix.getAt(loop % matrix.dimx_, loop / matrix.dimy_).toString() + ") ";
 			}
 			os << builder;
 			return os;
