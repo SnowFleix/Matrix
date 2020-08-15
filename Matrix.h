@@ -23,10 +23,10 @@ namespace matracies {
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 		using difference_type = std::iterator_traits<iterator>::difference_type;
 		using size_type = std::size_t;
-
+		
 		// public variables
 		std::vector<T> inner_; // set to private later
-		unsigned int dimx_, dimy_;
+		unsigned int dimx_, dimy_; // set to private later
 
 		/// <summary>
 		/// Default constructor 
@@ -52,11 +52,11 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Add an element to the metrix at a specific position
 		/// </summary>
-		/// <param name="value"></param>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
+		/// <param name="value">The value to add to the matrix</param>
+		/// <param name="x">The column to add to</param>
+		/// <param name="y">The row to add to</param>
 		void add(T value, unsigned int x, unsigned int y) {
 			if (isOutOfRange(x, y))
 				throw out_of_range_error;
@@ -66,7 +66,7 @@ namespace matracies {
 		// matrix operations
 
 		/// <summary>
-		/// 
+		/// Inverts the matrix
 		/// </summary>
 		void invert() {
 			if (dimx_ != dimy_)
@@ -76,25 +76,27 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Returns the deteminant of the matrix
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>The deteminant as an integer</returns>
+		/// TODO : add to a specialised templated class, won't work with matracies of types other than numbers
 		int& getDeterminant() {
 			return determinant(*this, this->size());
 		}
 
 		/// <summary>
-		/// 
+		/// Normalises the matrix
 		/// </summary>
+		/// TODO : implement normalisation
 		void normalise() {}
 
 		// operators
 
 		/// <summary>
-		/// 
+		/// Checks if two matracies contain the same values
 		/// </summary>
-		/// <param name="arg"></param>
-		/// <returns></returns>
+		/// <param name="arg">The matrix to compare against</param>
+		/// <returns>Whether the two are the same or not as a bool</returns>
 		bool operator==(Matrix<T> arg) {
 			if (isOutOfRange(arg))
 				throw matrix_wrong_size;
@@ -105,16 +107,23 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Checks if the two matricies are not the same
 		/// </summary>
-		/// <param name="arg"></param>
+		/// <param name="arg">The matrix to compare</param>
+		/// <returns>Bool</returns>
+		bool operator!=(Matrix<T> arg) {
+			return !(*this == arg);
+		}
+
+		/// <summary>
+		/// Copies a matrix to the current one
+		/// </summary>
+		/// <param name="arg">The matrix to copy</param>
 		/// <returns></returns>
 		Matrix<T>& operator=(Matrix<T> arg) {
 			if (this != arg)
-				this = arg;
+				this = arg; // change later
 		}
-
-		// Binary arithmetic operators
 
 		/// <summary>
 		/// 
@@ -149,7 +158,6 @@ namespace matracies {
 		/// <returns></returns>
 		/// TODO : make this more efficient
 		Matrix<T>& operator*(Matrix<T> arg) {
-
 			Matrix<T> temp(dimx_, dimy_);
 			multiply(this, arg, temp);
 			return temp;
@@ -210,58 +218,52 @@ namespace matracies {
 			return getColumn(index);
 		}
 
-		// STL functions
-
-		/* Selectors */
-
 		/// <summary>
-		/// 
+		/// Returns a constant iterator where the value is kept within the vector inner_
 		/// </summary>
-		/// <param name="key"></param>
-		/// <returns></returns>
+		/// <param name="key">The value to get</param>
+		/// <returns>A const iterator of where the element is </returns>
 		const_iterator find(const T& key) const {
 			return std::find(inner_.begin(), inner_.end(), key);
 		}
 
 		/// <summary>
-		/// 
+		/// Gets the size of the matrix
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>Only returns the amount of columns</returns>
 		size_type size() const {
 			return dimx_;
 		}
 
 		/// <summary>
-		/// 
+		/// Gets the max amount of elements possible to add to the matrix
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>The size of the vector</returns>
 		size_type max_size() const {
 			return std::vector.max_size();
 		}
 
 		/// <summary>
-		/// 
+		/// Gets an element at col x, row y
 		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <returns></returns>
+		/// <param name="x">The column</param>
+		/// <param name="y">The row</param>
+		/// <returns>The element at x,y</returns>
 		const_reference at(int x, int y) const {
 			return getAt(x, y);
 		}
 
-		/* Mutators */
-
 		/// <summary>
-		/// 
+		/// Finds and element in the matrix
 		/// </summary>
-		/// <param name="key"></param>
-		/// <returns></returns>
+		/// <param name="key">The value requred</param>
+		/// <returns>The iterator within the vector where the element is</returns>
 		iterator find(const T& key) {
 			return std::find(inner_.begin(), inner_.end(), key);
 		}
 
 		/// <summary>
-		/// 
+		/// Gets the size of inner_
 		/// </summary>
 		/// <returns></returns>
 		size_t vecSize() {
@@ -269,7 +271,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Deletes all the elements of the matrix
 		/// </summary>
 		/// <param name="key"></param>
 		void erase(const key_type& key) {
@@ -543,7 +545,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Gets a whole row at the specified index
 		/// </summary>
 		/// <param name="row"></param>
 		/// <returns></returns>
@@ -557,7 +559,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Multiplies two matricies and sends creates a new on called out
 		/// </summary>
 		/// <param name="matrixOne"></param>
 		/// <param name="matrixTwo"></param>
@@ -576,7 +578,7 @@ namespace matracies {
 		// TODO : rename all the one letter variables to something actually meaningful and useful
 
 		/// <summary>
-		/// 
+		/// Gets the cofactor of the matrix
 		/// </summary>
 		/// <param name="M">The matrix to inverse</param>
 		/// <param name="t"></param>
@@ -598,7 +600,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Gets the determinant of the matrix
 		/// </summary>
 		/// <param name="M">The matrix to inverse</param>
 		/// <param name="n">The </param>
@@ -647,6 +649,8 @@ namespace matracies {
 		/// <param name="inv">The inverse aka the out matrix</param>
 		/// <returns></returns>
 		bool inverse(Matrix<T> M, Matrix<T>& inv) {
+			if (!(isInt32() || isDouble() || isFloat() || isShort()))
+				throw wrong_data_type;
 			int det = determinant(M, M.size());
 			if (det == 0) {
 				throw cannot_find_inverse;
