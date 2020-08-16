@@ -9,7 +9,6 @@ namespace matracies {
 	class Matrix {
 
 	public:
-		// STL functionality
 		using matrix_type = T;
 		using value_type = matrix_type;
 		using allocator_type = alloc;
@@ -126,7 +125,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Simple matrix addition
 		/// </summary>
 		/// <param name="arg"></param>
 		/// <returns></returns>
@@ -139,7 +138,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Matrix subtraction
 		/// </summary>
 		/// <param name="arg"></param>
 		/// <returns></returns>
@@ -152,7 +151,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Matrix multiplication
 		/// </summary>
 		/// <param name="arg"></param>
 		/// <returns></returns>
@@ -164,7 +163,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Matrix division
 		/// </summary>
 		/// <param name="arg"></param>
 		/// <returns></returns>
@@ -174,7 +173,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Overrides the += operator
 		/// </summary>
 		/// <param name="arg"></param>
 		/// <returns></returns>
@@ -183,7 +182,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Overrides the -= operator
 		/// </summary>
 		/// <param name="arg"></param>
 		/// <returns></returns>
@@ -192,7 +191,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Overrides the *= operator
 		/// </summary>
 		/// <param name="arg"></param>
 		/// <returns></returns>
@@ -201,7 +200,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// overrides the /= operator
 		/// </summary>
 		/// <param name="arg"></param>
 		/// <returns></returns>
@@ -292,7 +291,6 @@ namespace matracies {
 #ifdef ROOT_TH1
 		TH1* toTH1(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			TH1* temp(name, title, nbinsx, xlow, xup);
-			// fill 
 			for (int i = 0; i < inner_.size(); i++)
 				if (inner_[i] > 0)
 					temp->Fill(i / dimx_, weight);
@@ -471,7 +469,7 @@ namespace matracies {
 		std::domain_error cannot_find_inverse("Cannot find the inverse of the matrix");
 
 		/// <summary>
-		/// 
+		/// Checks if the type of the matrix is an int32
 		/// </summary>
 		/// <returns></returns>
 		bool isInt32() {
@@ -479,7 +477,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Checks if the type of the matrix is a double
 		/// </summary>
 		/// <returns></returns>
 		bool isDouble() {
@@ -487,7 +485,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Checks if the type of the matrix is a float
 		/// </summary>
 		/// <returns></returns>
 		bool isFloat() {
@@ -495,7 +493,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Checks if the type of the matrix is a short
 		/// </summary>
 		/// <returns></returns>
 		bool isShort() {
@@ -503,7 +501,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Checks if the type of the matrix is a char
 		/// </summary>
 		/// <returns></returns>
 		bool isChar() {
@@ -530,7 +528,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// 
+		/// Gets a row at the specified index
 		/// </summary>
 		/// <param name="row"></param>
 		/// <returns></returns>
@@ -545,7 +543,7 @@ namespace matracies {
 		}
 
 		/// <summary>
-		/// Gets a whole row at the specified index
+		/// Gets a whole column at the specified index
 		/// </summary>
 		/// <param name="row"></param>
 		/// <returns></returns>
