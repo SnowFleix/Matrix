@@ -5,7 +5,7 @@
 #include <typeinfo>
 #include <iterator>
 
-namespace matracies {
+namespace matrices {
 
 	template <class T, class alloc = std::allocator<T>>
 	class Matrix {
