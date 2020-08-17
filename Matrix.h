@@ -1,7 +1,9 @@
 #pragma once
 #include <stdexcept>
 #include <vector>
+#include <string>
 #include <typeinfo>
+#include <iterator>
 
 namespace matracies {
 
@@ -9,20 +11,7 @@ namespace matracies {
 	class Matrix {
 
 	public:
-		using matrix_type = T;
-		using value_type = matrix_type;
-		using allocator_type = alloc;
-		using reference = matrix_type&;
-		using const_reference = const matrix_type&;
-		using pointer = typename std::allocator_traits<allocator_type>::pointer;
-		using const_pointer = typename std::allocator_traits<allocator_type>::const_pointer;
-		using iterator = std::vector::iterator<matrix_type>;
-		using const_iterator = std::vector::const_iterator<matrix_type>;
-		using reverse_iterator = std::reverse_iterator<iterator>;
-		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-		using difference_type = std::iterator_traits<iterator>::difference_type;
-		using size_type = std::size_t;
-		
+
 		// public variables
 		std::vector<T> inner_; // set to private later
 		unsigned int dimx_, dimy_; // set to private later
@@ -46,7 +35,7 @@ namespace matracies {
 		/// <remarks>Will throw an error if out of range</remarks>
 		T& getAt(unsigned int x, unsigned int y) {
 			if (isOutOfRange(x, y))
-				throw out_of_range_error;
+				throw std::out_of_range("Index out of range");
 			return inner_[dimx_ * y + x];
 		}
 
@@ -58,7 +47,7 @@ namespace matracies {
 		/// <param name="y">The row to add to</param>
 		void add(T value, unsigned int x, unsigned int y) {
 			if (isOutOfRange(x, y))
-				throw out_of_range_error;
+				throw std::out_of_range("Index out of range");
 			inner_[dimx_ * y + x] = value;
 		}
 
@@ -69,9 +58,9 @@ namespace matracies {
 		/// </summary>
 		void invert() {
 			if (dimx_ != dimy_)
-				throw matrix_not_n_by_n;
+				throw std::invalid_argument("Matrix is not n by n");
 			if (!inverse(*this, *this))
-				throw cannot_find_inverse;
+				throw std::domain_error("Cannot find inverse");
 		}
 
 		/// <summary>
@@ -98,7 +87,7 @@ namespace matracies {
 		/// <returns>Whether the two are the same or not as a bool</returns>
 		bool operator==(Matrix<T> arg) {
 			if (isOutOfRange(arg))
-				throw matrix_wrong_size;
+				throw std::invalid_argument("Matrix is out of range");
 			for (int i = 0; i < inner_.size(); i++)
 				if (inner_[i] != arg.inner_[i])
 					return false;
@@ -119,20 +108,22 @@ namespace matracies {
 		/// </summary>
 		/// <param name="arg">The matrix to copy</param>
 		/// <returns></returns>
-		Matrix<T>& operator=(Matrix<T> arg) {
-			if (this != arg)
-				this = arg; // change later
-		}
+		//Matrix<T>& operator=(Matrix<T> arg) {
+		//	if (this != arg)
+		//		this = arg; // change later
+		//}
 
 		/// <summary>
 		/// Simple matrix addition
 		/// </summary>
 		/// <param name="arg"></param>
 		/// <returns></returns>
+		/// TODO : Need to fix this function as it will change this object
+		/// rather than just return a new one with the two matrices added together
 		Matrix<T>& operator+(Matrix<T> arg) {
 			if (isOutOfRange(arg))
-				throw matrix_wrong_size;
-			for (int i = 0; i < dimx_ * dimy_; i++)
+				throw std::invalid_argument("Matrix is out of range");
+			for (int i = 0; i < inner_.size(); i++)
 				inner_[i] += arg.getAt(i % dimx_, i / dimy_);
 			return *this;
 		}
@@ -144,7 +135,7 @@ namespace matracies {
 		/// <returns></returns>
 		Matrix<T>& operator-(Matrix<T> arg) {
 			if (isOutOfRange(arg))
-				throw matrix_wrong_size;
+				throw std::invalid_argument("Matrix is out of range");
 			for (int i = 0; i < dimx_ * dimy_; i++)
 				inner_[i] -= arg.getAt(i % dimx_, i / dimy_);
 			return *this;
@@ -156,9 +147,11 @@ namespace matracies {
 		/// <param name="arg"></param>
 		/// <returns></returns>
 		/// TODO : make this more efficient
-		Matrix<T>& operator*(Matrix<T> arg) {
+		Matrix<T> operator*(Matrix<T> arg) {
+			if (isOutOfRange(arg))
+				throw std::out_of_range("Matrix out of range");
 			Matrix<T> temp(dimx_, dimy_);
-			multiply(this, arg, temp);
+			multiply(*this, arg, temp);
 			return temp;
 		}
 
@@ -222,7 +215,7 @@ namespace matracies {
 		/// </summary>
 		/// <param name="key">The value to get</param>
 		/// <returns>A const iterator of where the element is </returns>
-		const_iterator find(const T& key) const {
+		typename std::vector<T>::iterator find(const T& key) const {
 			return std::find(inner_.begin(), inner_.end(), key);
 		}
 
@@ -230,7 +223,7 @@ namespace matracies {
 		/// Gets the size of the matrix
 		/// </summary>
 		/// <returns>Only returns the amount of columns</returns>
-		size_type size() const {
+		size_t size() const {
 			return dimx_;
 		}
 
@@ -238,7 +231,7 @@ namespace matracies {
 		/// Gets the max amount of elements possible to add to the matrix
 		/// </summary>
 		/// <returns>The size of the vector</returns>
-		size_type max_size() const {
+		size_t max_size() const {
 			return std::vector.max_size();
 		}
 
@@ -248,7 +241,7 @@ namespace matracies {
 		/// <param name="x">The column</param>
 		/// <param name="y">The row</param>
 		/// <returns>The element at x,y</returns>
-		const_reference at(int x, int y) const {
+		T& at(int x, int y) const {
 			return getAt(x, y);
 		}
 
@@ -257,7 +250,7 @@ namespace matracies {
 		/// </summary>
 		/// <param name="key">The value requred</param>
 		/// <returns>The iterator within the vector where the element is</returns>
-		iterator find(const T& key) {
+		typename std::vector<T>::iterator find(const T& key) {
 			return std::find(inner_.begin(), inner_.end(), key);
 		}
 
@@ -272,8 +265,7 @@ namespace matracies {
 		/// <summary>
 		/// Deletes all the elements of the matrix
 		/// </summary>
-		/// <param name="key"></param>
-		void erase(const key_type& key) {
+		void erase() {
 			delete inner_;
 			inner_ = std::vector<T>;
 			inner_.resize(dimx_ * dimy_);
@@ -288,6 +280,11 @@ namespace matracies {
 			inner_.resize(dimx_ * dimy_);
 		}
 
+		void fill(T objToFill) {
+			for (int i = 0; i < inner_.size(); i++)
+				inner_[i] = objToFill;
+		}
+
 #ifdef ROOT_TH1
 		TH1* toTH1(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			TH1* temp(name, title, nbinsx, xlow, xup);
@@ -300,7 +297,7 @@ namespace matracies {
 #ifdef ROOT_TH1F
 		TH1F* toTH1F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isFloat())
-				throw wrong_data_type;
+				throw std::invalid_argument("Matrix is of wrong type");
 			return toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif
@@ -308,7 +305,7 @@ namespace matracies {
 #ifdef ROOT_TH1D
 		TH1F* toTH1F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isDouble())
-				throw wrong_data_type;
+				throw std::invalid_argument("Matrix is of wrong type");
 			return toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif
@@ -316,7 +313,7 @@ namespace matracies {
 #ifdef ROOT_TH1I
 		TH1I* toTH1I(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isInt32())
-				throw wrong_data_type;
+				throw std::invalid_argument("Matrix is of wrong type");
 			return toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif 
@@ -324,7 +321,7 @@ namespace matracies {
 #ifdef ROOT_TH1S
 		TH1S* toTH1S(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isShort())
-				throw wrong_data_type;
+				throw std::invalid_argument("Matrix is of wrong type");
 			return toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif 
@@ -332,7 +329,7 @@ namespace matracies {
 #ifdef ROOT_TH1C
 		TH1C* toTH1C(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isChar())
-				throw wrong_data_type;
+				throw std::invalid_argument("Matrix is of wrong type");
 			return toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif 
@@ -345,8 +342,8 @@ namespace matracies {
 
 #ifdef ROOT_TH2
 
-		TH2* toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, 
-			       Int_t nbinsy, Double_t ylow, Double_t yup) {
+		TH2* toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
+			Int_t nbinsy, Double_t ylow, Double_t yup) {
 			TH2* temp(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
 			for (int i = 0; i < inner_.size(); i++)
 				if (inner_[i] > 0)
@@ -358,7 +355,7 @@ namespace matracies {
 		TH2F* toTH2F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
 			if (!)
-				throw wrong_data_type;
+				throw std::invalid_argument("Matrix is of wrong type");
 			return toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
 		}
 #endif
@@ -367,7 +364,7 @@ namespace matracies {
 		TH2D* toTH2D(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
 			if (!isDouble())
-				throw wrong_data_type;
+				throw std::invalid_argument("Matrix is of wrong type");
 			return toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
 		}
 #endif
@@ -376,7 +373,7 @@ namespace matracies {
 		TH2S* toTH2S(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
 			if (!isShort())
-				throw wrong_data_type;
+				throw std::invalid_argument("Matrix is of wrong type");
 			return toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
 		}
 #endif
@@ -385,7 +382,7 @@ namespace matracies {
 		TH2I* toTH2I(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
 			if (!isInt32())
-				throw wrong_data_type;
+				throw std::invalid_argument("Matrix is of wrong type");
 			return toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
 		}
 #endif
@@ -394,7 +391,7 @@ namespace matracies {
 		TH2C* toTH2C(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
 			if (!isChar())
-				throw wrong_data_type;
+				throw std::invalid_argument("Matrix is of wrong type");
 			return toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
 		}
 #endif
@@ -415,7 +412,7 @@ namespace matracies {
 		Matrix(TMatrix tMatrix)
 			: dimx_(tMatrix.GetNrows()), dimy_(tMatrix.GetNcols()) {
 			if (!typeid(T).name() == "Float_T")
-				throw wrong_data_type;
+				throw std::invalid_argument("Matrix is of wrong type");
 			inner_.resize(dimx_ * dimy_);
 			inner_ = tMatrix.GetMatrixArray();
 		}
@@ -433,7 +430,7 @@ namespace matracies {
 
 		TMatrix toTMatrix() {
 			if (!typeid(T).name() == "Float_T")
-				throw wrong_data_type;
+				throw std::invalid_argument("Matrix is of wrong type");
 			return static_cast<TMatrix>(*this);
 		}
 
@@ -463,11 +460,6 @@ namespace matracies {
 #endif
 
 	private:
-		std::out_of_range out_of_range_error("Matrix indices out of range"); // create our outofrange error
-		std::invalid_argument matrix_wrong_size("The passed matix is not of the same size as the base");
-		std::invalid_argument wrong_data_type("The passed datatype does not match that used in the function");
-		std::domain_error cannot_find_inverse("Cannot find the inverse of the matrix");
-
 		/// <summary>
 		/// Checks if the type of the matrix is an int32
 		/// </summary>
@@ -514,7 +506,7 @@ namespace matracies {
 		/// <param name="arg"></param>
 		/// <returns></returns>
 		bool isOutOfRange(Matrix<T> arg) {
-			return arg.dimx_ >= dimx_ || arg.dimy_ >= dimy_
+			return arg.dimx_ > dimx_ || arg.dimy_ > dimy_; // assumes the vector cannot have - indexs
 		}
 
 		/// <summary>
@@ -524,7 +516,7 @@ namespace matracies {
 		/// <param name="y">Rows to check</param>
 		/// <returns></returns>
 		bool isOutOfRange(unsigned int x, unsigned int y) {
-			return x >= dimx_ || y >= dimy_
+			return x > dimx_ || y > dimy_ || x < 0 || y < 0;
 		}
 
 		/// <summary>
@@ -533,12 +525,12 @@ namespace matracies {
 		/// <param name="row"></param>
 		/// <returns></returns>
 		/// <remarks>returns a reference to a temp variable</remarks>
-		std::vector<T>& getRow(int row) {
+		std::vector<T> getRow(int row) {
 			if (row > dimy_)
-				throw out_of_range_error;
+				throw std::out_of_range("Index out of range");
 			std::vector<T> temp;
-			for (int i = row * dimy_; i < dimx_; i++)
-				temp.push_back(inner_[i]);
+			for (int i = 0; i < dimx_; i++)
+				temp.push_back(inner_[i * dimy_]);
 			return temp;
 		}
 
@@ -549,9 +541,9 @@ namespace matracies {
 		/// <returns></returns>
 		std::vector<T> getColumn(int column) {
 			if (column > dimx_)
-				throw out_of_range_error;
+				throw std::out_of_range("Index out of range");
 			std::vector<T> temp;
-			for (int i = row; i < dimx_; i++)
+			for (int i = column; i < dimx_; i++)
 				temp.push_back(inner_[i] + dimx_ * i);
 			return temp;
 		}
@@ -562,13 +554,16 @@ namespace matracies {
 		/// <param name="matrixOne"></param>
 		/// <param name="matrixTwo"></param>
 		/// <param name="out"></param>
+		/// TODO : Does not work, need to refactor
 		void multiply(Matrix<T> matrixOne, Matrix<T> matrixTwo, Matrix<T>& out) {
-			for (int i = 0; i < dimx_; i++) {
-				for (int j = 0; j < dimy_; j++) {
-					out.add(i, j, 0) = 0;
-					for (int k = 0; k < matrixOne.dimx_; k++)
-						out.getAt(i, j) += matrixOne.getAt(i, k) *
-						matrixTwo.getAt(k, j);
+			for (int x = 0; x < matrixOne.dimx_; x++) {
+				for (int y = 0; y < matrixTwo.dimx_; y++) {
+					int dotProduct = 0;
+					for (int i = 0; i < matrixOne.dimx_; i++) {
+						int matrixRow = matrixOne.getRow(x)[i];
+						dotProduct += matrixOne.getRow(x)[i] * matrixTwo.getRow(y)[i];
+					}
+					out.add(dotProduct, x, y);
 				}
 			}
 		}
@@ -588,7 +583,7 @@ namespace matracies {
 			for (int r = 0; r < n; r++) {
 				for (int c = 0; c < n; c++) { //Copy only those elements which are not in given row r and column c: 
 					if (r != p && c != q) {
-						t.getAt(i, j++) = M.getAt(r, c); //If row is filled increase r index and reset c index
+						t.add(i, j++, M.getAt(r, c)); //If row is filled increase r index and reset c index
 						if (j == n - 1) {
 							j = 0; i++;
 						}
@@ -628,14 +623,14 @@ namespace matracies {
 				adj.getAt(0, 0) = 1;
 				return;
 			}
-			int s = 1,
-				Matrix<T> t(M.size(), M.size());
+			int s = 1;
+			Matrix<T> t(M.size(), M.size());
 			for (int i = 0; i < M.size(); i++) {
 				for (int j = 0; j < M.size(); j++) {
 					//To get cofactor of M[i][j]
 					getCofactor(M, t, i, j, M.size());
 					s = ((i + j) % 2 == 0) ? 1 : -1; //sign of adj[j][i] positive if sum of row and column indexes is even.
-					adj.getAt(j, i) = (s) * (determinant(t, M.size() - 1)); //Interchange rows and columns to get the transpose of the cofactor matrix
+					adj.add(j, i, (s) * (determinant(t, M.size() - 1))); //Interchange rows and columns to get the transpose of the cofactor matrix
 				}
 			}
 		}
@@ -648,17 +643,17 @@ namespace matracies {
 		/// <returns></returns>
 		bool inverse(Matrix<T> M, Matrix<T>& inv) {
 			if (!(isInt32() || isDouble() || isFloat() || isShort()))
-				throw wrong_data_type;
+				throw std::invalid_argument("The matrix is not a valid type");
 			int det = determinant(M, M.size());
 			if (det == 0) {
-				throw cannot_find_inverse;
+				throw std::domain_error("Cannot find determinant");
 				return false;
 			}
 			Matrix<T> adj(M.size(), M.size());
 			adjoint(M, adj);
 			for (int i = 0; i < M.size(); i++)
 				for (int j = 0; j < M.size(); j++)
-					inv.getAt(i, j) = adj.getAt(i, j) / T(det);
+					inv.add(i, j, adj.getAt(i, j) / T(det));
 			return true;
 		}
 
@@ -667,10 +662,10 @@ namespace matracies {
 		friend std::ostream& operator<<(std::ostream& os, Matrix<T>& matrix) {
 			std::string builder = "";
 			for (int loop = 0; loop < matrix.vecSize(); loop++) {
-				if (loop % matrix.dimx_ == 0 && i != 0) {
+				if (loop % matrix.dimx_ == 0 && loop != 0) {
 					builder += "\n";
 				}
-				builder += "(" + matrix.getAt(loop % matrix.dimx_, loop / matrix.dimy_).toString() + ") ";
+				builder += "(" + std::to_string(matrix.getAt(loop % matrix.dimx_, loop / matrix.dimy_)) + ") ";
 			}
 			os << builder;
 			return os;
