@@ -208,7 +208,9 @@ namespace matracies {
 		/// </summary>
 		/// <param name="index"></param>
 		/// <returns></returns>
-		std::vector<T>& operator[](int index) {
+		/// This is pretty inefficient but it does allow users to use the [x][y] as if
+		/// they are using a 2D array, perhaps find a better way to implement this
+		std::vector<T> operator[](int index) {
 			return getColumn(index);
 		}
 
@@ -467,7 +469,7 @@ namespace matracies {
 		/// </summary>
 		/// <returns></returns>
 		bool isInt32() {
-			return typeid(T).name == "__int32" || typeid(T).name == "int32_t";
+			return typeid(T).name() == "__int32" || typeid(T).name() == "int32_t";
 		}
 
 		/// <summary>
@@ -475,7 +477,7 @@ namespace matracies {
 		/// </summary>
 		/// <returns></returns>
 		bool isDouble() {
-			return typeid(T).name == "double" || typeid(T).name == "Double_t" || typeid(T).name == "double_t";
+			return typeid(T).name() == "double" || typeid(T).name() == "Double_t" || typeid(T).name() == "double_t";
 		}
 
 		/// <summary>
@@ -483,7 +485,7 @@ namespace matracies {
 		/// </summary>
 		/// <returns></returns>
 		bool isFloat() {
-			return typeid(T).name == "float" || typeid(T).name == "float_t" || typeid(T).name == "Float_t";
+			return typeid(T).name() == "float" || typeid(T).name() == "float_t" || typeid(T).name() == "Float_t";
 		}
 
 		/// <summary>
@@ -491,7 +493,7 @@ namespace matracies {
 		/// </summary>
 		/// <returns></returns>
 		bool isShort() {
-			return typeid(T).name == "short" || typeid(T).name == "Short_t";
+			return typeid(T).name() == "short" || typeid(T).name() == "Short_t";
 		}
 
 		/// <summary>
@@ -499,7 +501,7 @@ namespace matracies {
 		/// </summary>
 		/// <returns></returns>
 		bool isChar() {
-			return typeid(T).name == "char" || typeid(T).name == "Char_t";
+			return typeid(T).name() == "char" || typeid(T).name() == "Char_t";
 		}
 
 		/// <summary>
@@ -545,7 +547,7 @@ namespace matracies {
 			if (column > dimx_)
 				throw std::out_of_range("Index out of range");
 			std::vector<T> temp;
-			for (int i = column; i < dimx_; i++)
+			for (int i = 0; i < dimx_; i++)
 				temp.push_back(inner_[i] + dimx_ * i);
 			return temp;
 		}
@@ -601,17 +603,27 @@ namespace matracies {
 		/// <param name="n">The </param>
 		/// <returns></returns>
 		int determinant(Matrix<T>& M, int n) { //to find determinant 
-			int D = 0;
-			if (n == 1)
-				return M.getAt(0, 0);
-			Matrix<T> t(M.size(), M.size()); //store cofactors
-			int s = 1; //store sign multiplier 
-					   //To Iterate each element of first row
-			for (int f = 0; f < n; f++) {
-				//For Getting Cofactor of M[0][f] do getCofactor(M, t, 0, f, n); D += s * M[0][f] * DET(t, n - 1);
-				s = -s;
+			int det = 0;
+			Matrix<T> submatrix(M.dimx_, M.dimy_);
+			if (n == 2)
+				return ((M[0][0] * M[1][1]) - (M[1][0] * M[0][1]));
+			else {
+				for (int x = 0; x < n; x++) {
+					int subi = 0;
+					for (int i = 1; i < n; i++) {
+						int subj = 0;
+						for (int j = 0; j < n; j++) {
+							if (j == x)
+								continue;
+							submatrix.add(M[i][j], subi, subj);
+							subj++;
+						}
+						subi++;
+					}
+					det = det + (pow(-1, x) * M[0][x] * determinant(submatrix, n - 1));
+				}
 			}
-			return D;
+			return det;
 		}
 
 		/// <summary>
@@ -644,8 +656,9 @@ namespace matracies {
 		/// <param name="inv">The inverse aka the out matrix</param>
 		/// <returns></returns>
 		bool inverse(Matrix<T> M, Matrix<T>& inv) {
-			if (!(isInt32() || isDouble() || isFloat() || isShort()))
-				throw std::invalid_argument("The matrix is not a valid type");
+			// fix later
+			//if (!(isInt32() || isDouble() || isFloat() || isShort()))
+				//throw std::invalid_argument("The matrix is not a valid type");
 			int det = determinant(M, M.size());
 			if (det == 0) {
 				throw std::domain_error("Cannot find determinant");
