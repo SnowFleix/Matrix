@@ -11,9 +11,24 @@ Knowledge of C++, ROOT and STL.
 
 Add the header file to your project, use as you want
 
-## Running the tests
+## Usage
 
-There are no tests for this prototype
+```cpp
+// create a matrix<int> and fill it
+matracies::Matrix<int> matrix(rows, columns);
+matrix.fill(5);
+std::cout << matrix;
+
+/*
+Output:
+
+(5) (5) (5) (5) (5)
+(5) (5) (5) (5) (5)
+(5) (5) (5) (5) (5)
+(5) (5) (5) (5) (5)
+(5) (5) (5) (5) (5)
+*/
+```
 
 ## Authors
 
