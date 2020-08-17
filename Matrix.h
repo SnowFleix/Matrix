@@ -120,12 +120,13 @@ namespace matracies {
 		/// <returns></returns>
 		/// TODO : Need to fix this function as it will change this object
 		/// rather than just return a new one with the two matrices added together
-		Matrix<T>& operator+(Matrix<T> arg) {
+		Matrix<T> operator+(Matrix<T> arg) {
 			if (isOutOfRange(arg))
 				throw std::invalid_argument("Matrix is out of range");
-			for (int i = 0; i < inner_.size(); i++)
-				inner_[i] += arg.getAt(i % dimx_, i / dimy_);
-			return *this;
+			Matrix<T> temp(*this);
+			for (int i = 0; i < temp.inner_.size(); i++)
+				temp.inner_[i] = this->getAt(i % dimx_, i / dimy_) + arg.getAt(i % dimx_, i / dimy_);
+			return temp;
 		}
 
 		/// <summary>
@@ -136,9 +137,10 @@ namespace matracies {
 		Matrix<T>& operator-(Matrix<T> arg) {
 			if (isOutOfRange(arg))
 				throw std::invalid_argument("Matrix is out of range");
-			for (int i = 0; i < dimx_ * dimy_; i++)
-				inner_[i] -= arg.getAt(i % dimx_, i / dimy_);
-			return *this;
+			Matrix<T> temp(*this);
+			for (int i = 0; i < temp.inner_.size(); i++)
+				temp.inner_[i] = this->getAt(i % dimx_, i / dimy_) - arg.getAt(i % dimx_, i / dimy_);
+			return temp;
 		}
 
 		/// <summary>
@@ -171,7 +173,7 @@ namespace matracies {
 		/// <param name="arg"></param>
 		/// <returns></returns>
 		Matrix<T>& operator+=(Matrix<T> arg) {
-			return this + arg;
+			return *this + arg;
 		}
 
 		/// <summary>
@@ -180,7 +182,7 @@ namespace matracies {
 		/// <param name="arg"></param>
 		/// <returns></returns>
 		Matrix<T>& operator-=(Matrix<T> arg) {
-			return this - arg;
+			return *this - arg;
 		}
 
 		/// <summary>
@@ -189,7 +191,7 @@ namespace matracies {
 		/// <param name="arg"></param>
 		/// <returns></returns>
 		Matrix<T>& operator*=(Matrix<T> arg) {
-			return this * arg;
+			return *this * arg;
 		}
 
 		/// <summary>
@@ -198,7 +200,7 @@ namespace matracies {
 		/// <param name="arg"></param>
 		/// <returns></returns>
 		Matrix<T>& operator/=(T arg) {
-			return this / arg;
+			return *this / arg;;
 		}
 
 		/// <summary>
