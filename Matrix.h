@@ -661,7 +661,7 @@ namespace matracies {
 				//throw std::invalid_argument("The matrix is not a valid type");
 			int det = determinant(M, M.size());
 			if (det == 0) {
-				throw std::domain_error("Cannot find determinant");
+				throw std::domain_error("Cannot find inverse");
 				return false;
 			}
 			Matrix<T> adj(M.size(), M.size());
