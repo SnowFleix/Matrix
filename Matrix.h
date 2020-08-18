@@ -5,6 +5,7 @@
 #include <typeinfo>
 #include <iterator>
 
+#include "J:\SDKs\eigen-master\Eigen\Core.h"
 namespace matrices {
 
 	template <class T, class alloc = std::allocator<T>>
@@ -284,12 +285,21 @@ namespace matrices {
 			inner_.resize(dimx_ * dimy_);
 		}
 
+		/// <summary>
+		/// Fills the matrix with the passed object
+		/// (All elements in the matrix will be equal to the passed value)
+		/// </summary>
+		/// <param name="objToFill"></param>
 		void fill(T objToFill) {
 			for (int i = 0; i < inner_.size(); i++)
 				inner_[i] = objToFill;
 		}
 
 #ifdef ROOT_TH1
+		/// <summary>
+		/// Converts a matrix to a TH1, it uses each row to fill the bin in the histogram
+		/// </summary>
+		/// <returns></returns>
 		TH1* toTH1(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			TH1* temp(name, title, nbinsx, xlow, xup);
 			for (int i = 0; i < inner_.size(); i++)
@@ -299,6 +309,10 @@ namespace matrices {
 		}
 
 #ifdef ROOT_TH1F
+		/// <summary>
+		/// Checks if the matrix is a float matrix then converts it to a TH1F
+		/// </summary>
+		/// <returns></returns>
 		TH1F* toTH1F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isFloat())
 				throw std::invalid_argument("Matrix is of wrong type");
@@ -307,6 +321,10 @@ namespace matrices {
 #endif
 
 #ifdef ROOT_TH1D
+		/// <summary>
+		/// Checks if the matrix is a double matrix then converts it to a TH1D
+		/// </summary>
+		/// <returns></returns>
 		TH1F* toTH1F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isDouble())
 				throw std::invalid_argument("Matrix is of wrong type");
@@ -315,6 +333,10 @@ namespace matrices {
 #endif
 
 #ifdef ROOT_TH1I
+		/// <summary>
+		/// Checks if the matrix is a int32 matrix then converts it to a TH1I
+		/// </summary>
+		/// <returns></returns>
 		TH1I* toTH1I(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isInt32())
 				throw std::invalid_argument("Matrix is of wrong type");
@@ -323,6 +345,10 @@ namespace matrices {
 #endif 
 
 #ifdef ROOT_TH1S
+		/// <summary>
+		/// Checks if the matrix is a short matrix then converts it to a TH1S
+		/// </summary>
+		/// <returns></returns>
 		TH1S* toTH1S(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isShort())
 				throw std::invalid_argument("Matrix is of wrong type");
@@ -331,6 +357,10 @@ namespace matrices {
 #endif 
 
 #ifdef ROOT_TH1C
+		/// <summary>
+		/// Checks if the matrix is a char matrix then converts it to a TH1C
+		/// </summary>
+		/// <returns></returns>
 		TH1C* toTH1C(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isChar())
 				throw std::invalid_argument("Matrix is of wrong type");
@@ -345,7 +375,10 @@ namespace matrices {
 #endif
 
 #ifdef ROOT_TH2
-
+		/// <summary>
+		/// Convets the matrix to a TH2, uses each element and fills the each bin with a weight that is equal to the element
+		/// </summary>
+		/// <returns></returns>
 		TH2* toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
 			TH2* temp(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
@@ -356,6 +389,10 @@ namespace matrices {
 		}
 
 #ifdef ROOT_TH2F
+		/// <summary>
+		/// Checks if the matrix is a float matrix then converts it to a TH2F
+		/// </summary>
+		/// <returns></returns>
 		TH2F* toTH2F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
 			if (!)
@@ -365,6 +402,10 @@ namespace matrices {
 #endif
 
 #ifdef ROOT_TH2D
+		/// <summary>
+		/// Checks if the matrix is a double matrix then converts it to a TH2D
+		/// </summary>
+		/// <returns></returns>
 		TH2D* toTH2D(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
 			if (!isDouble())
@@ -374,6 +415,10 @@ namespace matrices {
 #endif
 
 #ifdef ROOT_TH2S
+		/// <summary>
+		/// Checks if the matrix is a short matrix then converts it to a TH2S
+		/// </summary>
+		/// <returns></returns>
 		TH2S* toTH2S(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
 			if (!isShort())
@@ -383,6 +428,10 @@ namespace matrices {
 #endif
 
 #ifdef ROOT_TH2I
+		/// <summary>
+		/// Checks if the matrix is a int32 matrix then converts it to a TH2I
+		/// </summary>
+		/// <returns></returns>
 		TH2I* toTH2I(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
 			if (!isInt32())
@@ -392,6 +441,10 @@ namespace matrices {
 #endif
 
 #ifdef ROOT_TH2C
+		/// <summary>
+		/// Checks if the matrix is a char matrix then converts it to a TH2C
+		/// </summary>
+		/// <returns></returns>
 		TH2C* toTH2C(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
 			if (!isChar())
@@ -413,6 +466,10 @@ namespace matrices {
 #ifdef ROOT_TMatrixT
 #ifdef ROOT_TMatrix
 
+		/// <summary>
+		/// New copy constructor for copying the TMatrix class
+		/// </summary>
+		/// <returns></returns>
 		Matrix(TMatrix tMatrix)
 			: dimx_(tMatrix.GetNrows()), dimy_(tMatrix.GetNcols()) {
 			if (!typeid(T).name() == "Float_T")
@@ -421,6 +478,10 @@ namespace matrices {
 			inner_ = tMatrix.GetMatrixArray();
 		}
 
+		/// <summary>
+		/// Overrides a cast to TMatrix
+		/// </summary>
+		/// <returns></returns>
 		operator TMatrix() const {
 			TMatrix temp(dimx_, dimy_);
 			for (int i = 0; i < inner_.size(); i++)
@@ -428,10 +489,18 @@ namespace matrices {
 			return temp;
 		}
 
+		/// <summary>
+		/// Overrides the = operator for making the Matrix<T> = root::TMatrix
+		/// </summary>
+		/// <returns></returns>
 		Matrix<T>& operator=(TMatrix<T> arg) {
 			return Matrix<T>(arg);
 		}
 
+		/// <summary>
+		/// Checks if the matrix is a char matrix then converts it to a TH2C
+		/// </summary>
+		/// <returns></returns>
 		TMatrix toTMatrix() {
 			if (!typeid(T).name() == "Float_T")
 				throw std::invalid_argument("Matrix is of wrong type");
@@ -439,17 +508,28 @@ namespace matrices {
 		}
 
 #endif
-
+		/// <summary>
+		/// New copy constructor for copying the TMatrixT<T> class
+		/// </summary>
+		/// <returns></returns>
 		Matrix(TMatrixT<T> tMatrix)
 			: dimx_(tMatrix.GetNrows()), dimy_(tMatrix.GetNcols()) {
 			inner_.resize(dimx_ * dimy_);
 			inner_ = tMatrix.GetMatrixArray();
 		}
 
+		/// <summary>
+		/// Adds a new function to convert this Matrix<T> to a TMatrixT<T>
+		/// </summary>
+		/// <returns></returns>
 		TMatrixT<T> toTMatrixT() {
 			return static_cast<TMatrixT<T>>(*this);
 		}
 
+		/// <summary>
+		/// Overrides a cast to TMatrixT
+		/// </summary>
+		/// <returns></returns>
 		operator TMatrixT<T>() const {
 			TMatrix temp(dimx_, dimy_);
 			for (int i = 0; i < inner_.size(); i++)
@@ -457,10 +537,55 @@ namespace matrices {
 			return temp;
 		}
 
+		/// <summary>
+		/// Overrides a cast to TMatrixT<T>
+		/// </summary>
+		/// <returns></returns>
 		Matrix<T>& operator=(TMatrixT<T> arg) {
 			return Matrix<T>(arg);
 		}
 
+#endif
+
+#ifdef EIGEN_MATRIX_H 
+
+		/// <summary>
+		/// A new copy constructor for the 
+		/// </summary>
+		/// <returns></returns>
+		Matrix(Eigen::Matrix<T, int, int> eigenMatrix) {
+			// must already be the same size as this matrix
+			inner_.resize(eigenMatrix.rows() * eigenMatrix.cols());
+			for (int i = 0; i < inner_.size(); i++)
+				*this->add(temp[i % dimx_][i / dimy_], i % dimx_, i / dimy_);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		Eigen::Matrix<T, int, int> toEigenMatrix() {
+			Eigen::Matrix<T, int, int> temp(dimx_, dimy_);
+			for (int i = 0; i < inner_.size(); i++)
+				temp[i % dimx_][i / dimy_] = inner_[i];
+			return temp;
+		}
+
+		/// <summary>
+		/// Overrides a cast to the Eigen::Matrix class
+		/// </summary>
+		/// <returns></returns>
+		operator Eigen::Matrix<T, int, int>() const {
+			return *this->toEigenMatrix();
+		}
+
+		/// <summary>
+		/// Overrides a cast to TMatrixT<T>
+		/// </summary>
+		/// <returns></returns>
+		Matrix<T>& operator=(Eigen::Matrix<T, int, int> arg) {
+			return Matrix<T>(arg);
+		}
 #endif
 
 	private:
@@ -577,12 +702,12 @@ namespace matrices {
 		/// <summary>
 		/// Gets the cofactor of the matrix
 		/// </summary>
-		/// <param name="M">The matrix to inverse</param>
+		/// <param name="M"></param>
 		/// <param name="t"></param>
 		/// <param name="p"></param>
 		/// <param name="q"></param>
 		/// <param name="n"></param>
-		void getCofactor(Matrix<T> M, Matrix<T> t, int p, int q, int n) {
+		void getCofactor(Matrix<T> &M, Matrix<T> &t, int p, int q, int n) {
 			int i = 0, j = 0;
 			for (int r = 0; r < n; r++) {
 				for (int c = 0; c < n; c++) { //Copy only those elements which are not in given row r and column c: 
