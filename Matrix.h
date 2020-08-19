@@ -300,7 +300,7 @@ namespace matrices {
 		/// </summary>
 		/// <returns></returns>
 		TH1* toTH1(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
-			TH1* temp(name, title, nbinsx, xlow, xup);
+			TH1* temp = new TH1(name, title, nbinsx, xlow, xup);
 			for (int i = 0; i < inner_.size(); i++)
 				if (inner_[i] > 0)
 					temp->Fill(i / dimx_, weight);
@@ -313,8 +313,8 @@ namespace matrices {
 		/// </summary>
 		/// <returns></returns>
 		TH1F* toTH1F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
-			if (!isFloat())
-				throw std::invalid_argument("Matrix is of wrong type");
+			//if (!isFloat())
+				/throw std::invalid_argument("Matrix is of wrong type");
 			return (TH1F*)toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif
@@ -325,8 +325,8 @@ namespace matrices {
 		/// </summary>
 		/// <returns></returns>
 		TH1D* toTH1D(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
-			if (!isDouble())
-				throw std::invalid_argument("Matrix is of wrong type");
+			//if (!isDouble())
+				//throw std::invalid_argument("Matrix is of wrong type");
 			return (TH1D*)toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif
@@ -337,8 +337,8 @@ namespace matrices {
 		/// </summary>
 		/// <returns></returns>
 		TH1I* toTH1I(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
-			if (!isInt32())
-				throw std::invalid_argument("Matrix is of wrong type");
+			//if (!isInt32())
+				//throw std::invalid_argument("Matrix is of wrong type");
 			return (TH1I*)toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif 
@@ -349,8 +349,8 @@ namespace matrices {
 		/// </summary>
 		/// <returns></returns>
 		TH1S* toTH1S(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
-			if (!isShort())
-				throw std::invalid_argument("Matrix is of wrong type");
+			//if (!isShort())
+				//throw std::invalid_argument("Matrix is of wrong type");
 			return (TH1S*)toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif 
@@ -361,8 +361,8 @@ namespace matrices {
 		/// </summary>
 		/// <returns></returns>
 		TH1C* toTH1C(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
-			if (!isChar())
-				throw std::invalid_argument("Matrix is of wrong type");
+			//if (!isChar())
+				//throw std::invalid_argument("Matrix is of wrong type");
 			return (TH1C*)toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif 
@@ -380,7 +380,7 @@ namespace matrices {
 		/// <returns></returns>
 		TH2* toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
-			TH2* temp(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
+			TH2* temp = new TH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
 			for (int i = 0; i < inner_.size(); i++)
 				if (inner_[i] > 0)
 					temp->Fill(i / dimx_, i % dimy_, inner_[i]); // uses the element as the weight
@@ -394,8 +394,8 @@ namespace matrices {
 		/// <returns></returns>
 		TH2F* toTH2F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
-			if (!)
-				throw std::invalid_argument("Matrix is of wrong type");
+			//if (!)
+				//throw std::invalid_argument("Matrix is of wrong type");
 			return toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
 		}
 #endif
@@ -407,8 +407,8 @@ namespace matrices {
 		/// <returns></returns>
 		TH2D* toTH2D(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
-			if (!isDouble())
-				throw std::invalid_argument("Matrix is of wrong type");
+			//if (!isDouble())
+				//throw std::invalid_argument("Matrix is of wrong type");
 			return toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
 		}
 #endif
@@ -420,8 +420,8 @@ namespace matrices {
 		/// <returns></returns>
 		TH2S* toTH2S(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
-			if (!isShort())
-				throw std::invalid_argument("Matrix is of wrong type");
+			//if (!isShort())
+				//throw std::invalid_argument("Matrix is of wrong type");
 			return toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
 		}
 #endif
@@ -433,8 +433,8 @@ namespace matrices {
 		/// <returns></returns>
 		TH2I* toTH2I(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
-			if (!isInt32())
-				throw std::invalid_argument("Matrix is of wrong type");
+			//if (!isInt32())
+				//throw std::invalid_argument("Matrix is of wrong type");
 			return toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
 		}
 #endif
@@ -446,8 +446,8 @@ namespace matrices {
 		/// <returns></returns>
 		TH2C* toTH2C(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup,
 			Int_t nbinsy, Double_t ylow, Double_t yup) {
-			if (!isChar())
-				throw std::invalid_argument("Matrix is of wrong type");
+			//if (!isChar())
+				//throw std::invalid_argument("Matrix is of wrong type");
 			return toTH2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
 		}
 #endif
