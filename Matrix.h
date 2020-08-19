@@ -314,7 +314,7 @@ namespace matrices {
 		/// <returns></returns>
 		TH1F* toTH1F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			//if (!isFloat())
-				/throw std::invalid_argument("Matrix is of wrong type");
+				//throw std::invalid_argument("Matrix is of wrong type");
 			return (TH1F*)toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif
