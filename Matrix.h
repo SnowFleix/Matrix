@@ -5,7 +5,6 @@
 #include <typeinfo>
 #include <iterator>
 
-#include "J:\SDKs\eigen-master\Eigen\Core.h"
 namespace matrices {
 
 	template <class T, class alloc = std::allocator<T>>
@@ -325,7 +324,7 @@ namespace matrices {
 		/// Checks if the matrix is a double matrix then converts it to a TH1D
 		/// </summary>
 		/// <returns></returns>
-		TH1F* toTH1F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
+		TH1F* toTH1D(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isDouble())
 				throw std::invalid_argument("Matrix is of wrong type");
 			return toTH1(name, title, nbinsx, xlow, xup, weight);
@@ -493,8 +492,8 @@ namespace matrices {
 		/// Overrides the = operator for making the Matrix<T> = root::TMatrix
 		/// </summary>
 		/// <returns></returns>
-		Matrix<T>& operator=(TMatrix<T> arg) {
-			return Matrix<T>(arg);
+		Matrix<T>& operator=(TMatrix arg) {
+			return Matrix(arg);
 		}
 
 		/// <summary>
@@ -546,7 +545,7 @@ namespace matrices {
 		}
 
 #endif
-
+		
 #ifdef EIGEN_MATRIX_H 
 
 		/// <summary>
@@ -564,8 +563,8 @@ namespace matrices {
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		Eigen::Matrix<T, int, int> toEigenMatrix() {
-			Eigen::Matrix<T, int, int> temp(dimx_, dimy_);
+		Eigen::Matrix<T, dimy_, dimx_> toEigenMatrix() {
+			Eigen::Matrix<T, dimy_, dimx_> temp;
 			for (int i = 0; i < inner_.size(); i++)
 				temp[i % dimx_][i / dimy_] = inner_[i];
 			return temp;
@@ -575,7 +574,7 @@ namespace matrices {
 		/// Overrides a cast to the Eigen::Matrix class
 		/// </summary>
 		/// <returns></returns>
-		operator Eigen::Matrix<T, int, int>() const {
+		operator Eigen::Matrix<T, dimy_, dimx_>() const {
 			return *this->toEigenMatrix();
 		}
 
@@ -583,7 +582,7 @@ namespace matrices {
 		/// Overrides a cast to TMatrixT<T>
 		/// </summary>
 		/// <returns></returns>
-		Matrix<T>& operator=(Eigen::Matrix<T, int, int> arg) {
+		Matrix<T>& operator=(Eigen::Matrix<T, dimy_, dimx_> arg) {
 			return Matrix<T>(arg);
 		}
 #endif
