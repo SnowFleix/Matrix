@@ -315,7 +315,7 @@ namespace matrices {
 		TH1F* toTH1F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isFloat())
 				throw std::invalid_argument("Matrix is of wrong type");
-			return toTH1(name, title, nbinsx, xlow, xup, weight);
+			return (TH1F*)toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif
 
@@ -324,10 +324,10 @@ namespace matrices {
 		/// Checks if the matrix is a double matrix then converts it to a TH1D
 		/// </summary>
 		/// <returns></returns>
-		TH1F* toTH1D(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
+		TH1D* toTH1D(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isDouble())
 				throw std::invalid_argument("Matrix is of wrong type");
-			return toTH1(name, title, nbinsx, xlow, xup, weight);
+			return (TH1D*)toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif
 
@@ -339,7 +339,7 @@ namespace matrices {
 		TH1I* toTH1I(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isInt32())
 				throw std::invalid_argument("Matrix is of wrong type");
-			return toTH1(name, title, nbinsx, xlow, xup, weight);
+			return (TH1I*)toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif 
 
@@ -351,7 +351,7 @@ namespace matrices {
 		TH1S* toTH1S(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isShort())
 				throw std::invalid_argument("Matrix is of wrong type");
-			return toTH1(name, title, nbinsx, xlow, xup, weight);
+			return (TH1S*)toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif 
 
@@ -363,7 +363,7 @@ namespace matrices {
 		TH1C* toTH1C(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			if (!isChar())
 				throw std::invalid_argument("Matrix is of wrong type");
-			return toTH1(name, title, nbinsx, xlow, xup, weight);
+			return (TH1C*)toTH1(name, title, nbinsx, xlow, xup, weight);
 		}
 #endif 
 
