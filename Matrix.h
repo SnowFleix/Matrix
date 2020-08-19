@@ -295,6 +295,18 @@ namespace matrices {
 		}
 
 #ifdef ROOT_TH1
+
+		/// <summary>
+		/// Fills a histogram with each row of the matrix
+		/// </summary>
+		/// <returns></returns>
+		template<typename HistT>
+		void fillHistogram(HistT hist, int weight) {
+			for (int i = 0; i < inner_.size(); i++)
+				if (inner_[i] > 0)
+					hist->Fill(i / dimx_, weight);
+		}
+
 		/// <summary>
 		/// Converts a matrix to a TH1, it uses each row to fill the bin in the histogram
 		/// </summary>
@@ -315,7 +327,9 @@ namespace matrices {
 		TH1F* toTH1F(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			//if (!isFloat())
 				//throw std::invalid_argument("Matrix is of wrong type");
-			return (TH1F*)toTH1(name, title, nbinsx, xlow, xup, weight);
+			TH1F* temp = new TH1F(name, title, nbinsx, xlow, xup);
+			fillHistogram(temp, weight);
+			return temp;
 		}
 #endif
 
