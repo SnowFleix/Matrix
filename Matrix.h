@@ -68,7 +68,7 @@ namespace matrices {
 		/// </summary>
 		/// <returns>The deteminant as an integer</returns>
 		/// TODO : add to a specialised templated class, won't work with matracies of types other than numbers
-		int& getDeterminant() {
+		int getDeterminant() {
 			return determinant(*this, this->size());
 		}
 
@@ -134,7 +134,7 @@ namespace matrices {
 		/// </summary>
 		/// <param name="arg"></param>
 		/// <returns></returns>
-		Matrix<T>& operator-(Matrix<T> arg) {
+		Matrix<T> operator-(Matrix<T> arg) {
 			if (isOutOfRange(arg))
 				throw std::invalid_argument("Matrix is out of range");
 			Matrix<T> temp(*this);
@@ -162,7 +162,7 @@ namespace matrices {
 		/// </summary>
 		/// <param name="arg"></param>
 		/// <returns></returns>
-		Matrix<T>& operator/(Matrix<T> arg) {
+		Matrix<T> operator/(Matrix<T> arg) {
 			//TODO : find a way to properly divide
 			return *this;
 		}
@@ -312,11 +312,11 @@ namespace matrices {
 		/// </summary>
 		/// <returns></returns>
 		TH1* toTH1(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
-			TH1* temp = new TH1(name, title, nbinsx, xlow, xup);
+			/*TH1* temp = new TH1(name, title, nbinsx, xlow, xup);
 			for (int i = 0; i < inner_.size(); i++)
 				if (inner_[i] > 0)
 					temp->Fill(i / dimx_, weight);
-			return temp;
+			return temp;*/
 		}
 
 #ifdef ROOT_TH1F
@@ -341,7 +341,9 @@ namespace matrices {
 		TH1D* toTH1D(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			//if (!isDouble())
 				//throw std::invalid_argument("Matrix is of wrong type");
-			return (TH1D*)toTH1(name, title, nbinsx, xlow, xup, weight);
+			TH1D* temp = new TH1D(name, title, nbinsx, xlow, xup);
+			fillHistogram(temp, weight);
+			return temp;
 		}
 #endif
 
@@ -353,7 +355,9 @@ namespace matrices {
 		TH1I* toTH1I(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			//if (!isInt32())
 				//throw std::invalid_argument("Matrix is of wrong type");
-			return (TH1I*)toTH1(name, title, nbinsx, xlow, xup, weight);
+			TH1I* temp = new TH1I(name, title, nbinsx, xlow, xup);
+			fillHistogram(temp, weight);
+			return temp;
 		}
 #endif 
 
@@ -365,7 +369,9 @@ namespace matrices {
 		TH1S* toTH1S(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			//if (!isShort())
 				//throw std::invalid_argument("Matrix is of wrong type");
-			return (TH1S*)toTH1(name, title, nbinsx, xlow, xup, weight);
+			TH1S* temp = new TH1S(name, title, nbinsx, xlow, xup);
+			fillHistogram(temp, weight);
+			return temp;
 		}
 #endif 
 
@@ -377,7 +383,9 @@ namespace matrices {
 		TH1C* toTH1C(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, int weight = 1) {
 			//if (!isChar())
 				//throw std::invalid_argument("Matrix is of wrong type");
-			return (TH1C*)toTH1(name, title, nbinsx, xlow, xup, weight);
+			TH1C* temp = new TH1C(name, title, nbinsx, xlow, xup);
+			fillHistogram(temp, weight);
+			return temp;
 		}
 #endif 
 
@@ -388,6 +396,18 @@ namespace matrices {
 #endif
 
 #ifdef ROOT_TH2
+
+		/// <summary>
+		/// Fills a histogram with each row of the matrix
+		/// </summary>
+		/// <returns></returns>
+		template<typename HistT>
+		void fill2DHistogram(HistT hist, int weight) {
+			for (int i = 0; i < inner_.size(); i++)
+				if (inner_[i] > 0)
+					hist->Fill(i / dimx_, i % dimy_, weight);
+		}
+
 		/// <summary>
 		/// Convets the matrix to a TH2, uses each element and fills the each bin with a weight that is equal to the element
 		/// </summary>
@@ -515,12 +535,11 @@ namespace matrices {
 		/// </summary>
 		/// <returns></returns>
 		TMatrix toTMatrix() {
-			if (!typeid(T).name() == "Float_T")
-				throw std::invalid_argument("Matrix is of wrong type");
 			return static_cast<TMatrix>(*this);
 		}
 
 #endif
+
 		/// <summary>
 		/// New copy constructor for copying the TMatrixT<T> class
 		/// </summary>
@@ -536,7 +555,10 @@ namespace matrices {
 		/// </summary>
 		/// <returns></returns>
 		TMatrixT<T> toTMatrixT() {
-			return static_cast<TMatrixT<T>>(*this);
+			TMatrixT<T> temp((Int_t)dimx_, (Int_t)dimy_);
+			for (int i = 0; i < inner_.size(); i++)
+				temp[i % dimx_][i / dimy_] = inner_[i];
+			return temp;
 		}
 
 		/// <summary>
@@ -544,10 +566,7 @@ namespace matrices {
 		/// </summary>
 		/// <returns></returns>
 		operator TMatrixT<T>() const {
-			TMatrix temp(dimx_, dimy_);
-			for (int i = 0; i < inner_.size(); i++)
-				temp[i % dimx_][i / dimy_] = inner_[i];
-			return temp;
+			return this->toTMatrixT();
 		}
 
 		/// <summary>
@@ -733,7 +752,7 @@ namespace matrices {
 				}
 			}
 		}
-
+		
 		/// <summary>
 		/// Gets the determinant of the matrix
 		/// </summary>
@@ -799,7 +818,7 @@ namespace matrices {
 				//throw std::invalid_argument("The matrix is not a valid type");
 			int det = determinant(M, M.size());
 			if (det == 0) {
-				throw std::domain_error("Cannot find inverse");
+				//throw std::domain_error("Cannot find inverse");
 				return false;
 			}
 			Matrix<T> adj(M.size(), M.size());
