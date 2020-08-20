@@ -13,6 +13,8 @@ Add the header file to your project, use as you want
 
 ## Usage
 
+To use the Matrix.h will all the capabilities of ROOT and Eigen::Matrix, you need to include these header files in the Matrix.h underneath my includes. If compiling with root through the commandline there should be no need to include the root library.
+
 ### To create a matrix, fill it and then output it to console
 
 Creating matrices of different types
@@ -113,7 +115,7 @@ Output:
 */
 ```
 
-Getting the inverse of the matrix
+Getting the inverse of the matrix *Not fully implemeneted*
 
 ```cpp
 
@@ -151,11 +153,16 @@ The elements within the TMatrixT<T>
 */
 ```
 
-Creating histograms from the matrix class
+Creating histograms from the matrix class, you can easily just create a TH1 from the matrix, it uses each row in the vector to fill the bins
 
 ```cpp
-
+TH1F* newHistF = productOf.toTH1F("TH1F Test", "TH1F Test", 5, 0, 5);
+	newHistF->Draw();
 ```
+
+## Known issues
+
+When using the code it is important to make note that the class is provided as is. I am always welcome to feedback, recommendations for features and bug reports but please do not think this is a professionally made class that is actively maintained. For known issues please refer to the github issues page.
 
 ## Authors
 
