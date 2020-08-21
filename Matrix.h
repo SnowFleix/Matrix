@@ -17,6 +17,17 @@ namespace matrices {
 		unsigned int dimx_, dimy_; // set to private later
 
 		/// <summary>
+		/// Gets the cofactor of the matrix
+		/// </summary>
+		/// <param name="elimCol"></param>
+		/// <param name="elimRow"></param>
+		double getCofactor(int elimCol, int elimRow) {
+			if (dimx_ == 1 || dimy_ == 1)
+				throw std::out_of_range("Bro wot doing??");
+			return determinant(createSubMatrix((*this), elimRow, elimCol), dimx_ - 1) * pow(-1, elimCol + elimRow);
+		}
+
+		/// <summary>
 		/// Default constructor 
 		/// </summary>
 		/// <param name="dimx">Amount of columns</param>
@@ -68,8 +79,17 @@ namespace matrices {
 		/// </summary>
 		/// <returns>The deteminant as an integer</returns>
 		/// TODO : add to a specialised templated class, won't work with matracies of types other than numbers
-		int getDeterminant() {
-			return determinant(*this, this->size());
+		double getDeterminant() {
+			return determinant(*this, this->dimx_);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		void transpose() {
+			Matrix<T> temp = *this;
+			for (int i = 0; i < dimx_; i++)
+				inner_[dimx_ * i / dimy_ + i % dimx_] = temp.getAt(i / dimy_, i % dimx_);
 		}
 
 		/// <summary>
@@ -228,7 +248,7 @@ namespace matrices {
 		/// </summary>
 		/// <returns>Only returns the amount of columns</returns>
 		size_t size() const {
-			return dimx_;
+			return dimx_ * dimy_;
 		}
 
 		/// <summary>
@@ -578,7 +598,7 @@ namespace matrices {
 		}
 
 #endif
-		
+
 #ifdef EIGEN_MATRIX_H 
 
 		/// <summary>
@@ -729,81 +749,68 @@ namespace matrices {
 			}
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="matrix"></param>
+		/// <param name="row"></param>
+		/// <param name="col"></param>
+		/// <returns></returns>
+		Matrix<T> createSubMatrix(Matrix<T> matrix, int elimRow, int elimCol) {
+			Matrix<T> temp(matrix.dimx_ - 1, matrix.dimx_ - 1);
+			for (int i = 0; i < matrix.size(); i++) { //Copy only those elements which are not in given row r and column c: 
+				int row = i / matrix.dimy_; int col = i % matrix.dimx_;
+				if (row != elimRow && col != elimCol) {
+					if (row > elimRow)
+						row -= 1;
+					if (col > elimCol)
+						col -= 1;
+					temp.add(matrix.inner_[i], row, col); //If row is filled increase r index and reset c index
+				}
+			}
+			return temp;
+		}
+
 		// TODO : rename all the one letter variables to something actually meaningful and useful
 
 		/// <summary>
-		/// Gets the cofactor of the matrix
-		/// </summary>
-		/// <param name="M"></param>
-		/// <param name="t"></param>
-		/// <param name="p"></param>
-		/// <param name="q"></param>
-		/// <param name="n"></param>
-		void getCofactor(Matrix<T> &M, Matrix<T> &t, int p, int q, int n) {
-			int i = 0, j = 0;
-			for (int r = 0; r < n; r++) {
-				for (int c = 0; c < n; c++) { //Copy only those elements which are not in given row r and column c: 
-					if (r != p && c != q) {
-						t.add(i, j++, M.getAt(r, c)); //If row is filled increase r index and reset c index
-						if (j == n - 1) {
-							j = 0; i++;
-						}
-					}
-				}
-			}
-		}
-		
-		/// <summary>
 		/// Gets the determinant of the matrix
 		/// </summary>
-		/// <param name="M">The matrix to inverse</param>
-		/// <param name="n">The </param>
+		/// <param name="matrix">The matrix to inverse</param>
+		/// <param name="matrixHeight">The height of the matrix, aka how many elements in the column</param>
 		/// <returns></returns>
-		int determinant(Matrix<T>& M, int n) { //to find determinant 
-			int det = 0;
-			Matrix<T> submatrix(M.dimx_, M.dimy_);
-			if (n == 2)
-				return ((M[0][0] * M[1][1]) - (M[1][0] * M[0][1]));
-			else {
-				for (int x = 0; x < n; x++) {
-					int subi = 0;
-					for (int i = 1; i < n; i++) {
-						int subj = 0;
-						for (int j = 0; j < n; j++) {
-							if (j == x)
-								continue;
-							submatrix.add(M[i][j], subi, subj);
-							subj++;
-						}
-						subi++;
-					}
-					det = det + (pow(-1, x) * M[0][x] * determinant(submatrix, n - 1));
-				}
-			}
+		double determinant(Matrix<T> matrix, int matrixHeight) { //to find determinant 
+			if (dimx_ != dimy_)
+				throw std::out_of_range("Bro wot doing??");
+			double det = 0;
+			if (matrixHeight == 2)
+				return ((matrix.getAt(0, 0) * matrix.getAt(1, 1)) - (matrix.getAt(1, 0) * matrix.getAt(0, 1)));
+			for (int colElem = 0; colElem < matrixHeight; colElem++)
+				det += getCofactor(0, 0) * matrix[0][colElem];
 			return det;
 		}
-
+		
 		/// <summary>
 		/// Creates an adjoint matrix using asj
 		/// </summary>
 		/// <param name="M">The matrix to inverse</param>
 		/// <param name="adj">The adjoint matrix, another out matrix</param>
 		void adjoint(Matrix<T>& M, Matrix<T>& adj) {
-			//to find adjoint matrix 
-			if (M.size() == 1) {
-				adj.getAt(0, 0) = 1;
-				return;
-			}
-			int s = 1;
-			Matrix<T> t(M.size(), M.size());
-			for (int i = 0; i < M.size(); i++) {
-				for (int j = 0; j < M.size(); j++) {
-					//To get cofactor of M[i][j]
-					getCofactor(M, t, i, j, M.size());
-					s = ((i + j) % 2 == 0) ? 1 : -1; //sign of adj[j][i] positive if sum of row and column indexes is even.
-					adj.add(j, i, (s) * (determinant(t, M.size() - 1))); //Interchange rows and columns to get the transpose of the cofactor matrix
-				}
-			}
+			////to find adjoint matrix 
+			//if (M.size() == 1) {
+			//	adj.getAt(0, 0) = 1;
+			//	return;
+			//}
+			//int s = 1;
+			//Matrix<T> t(M.size(), M.size());
+			//for (int i = 0; i < M.size(); i++) {
+			//	for (int j = 0; j < M.size(); j++) {
+			//		//To get cofactor of M[i][j]
+			//		getCofactor(M, t, i, j, M.size());
+			//		s = ((i + j) % 2 == 0) ? 1 : -1; //sign of adj[j][i] positive if sum of row and column indexes is even.
+			//		adj.add(j, i, (s) * (determinant(t, dimx_() - 1))); //Interchange rows and columns to get the transpose of the cofactor matrix
+			//	}
+			//}
 		}
 
 		/// <summary>
@@ -813,20 +820,20 @@ namespace matrices {
 		/// <param name="inv">The inverse aka the out matrix</param>
 		/// <returns></returns>
 		bool inverse(Matrix<T> M, Matrix<T>& inv) {
-			// fix later
-			//if (!(isInt32() || isDouble() || isFloat() || isShort()))
-				//throw std::invalid_argument("The matrix is not a valid type");
-			int det = determinant(M, M.size());
-			if (det == 0) {
-				//throw std::domain_error("Cannot find inverse");
-				return false;
-			}
-			Matrix<T> adj(M.size(), M.size());
-			adjoint(M, adj);
-			for (int i = 0; i < M.size(); i++)
-				for (int j = 0; j < M.size(); j++)
-					inv.add(i, j, adj.getAt(i, j) / T(det));
-			return true;
+			//// fix later
+			////if (!(isInt32() || isDouble() || isFloat() || isShort()))
+			//	//throw std::invalid_argument("The matrix is not a valid type");
+			//int det = determinant(M, M.dimx_);
+			//if (det == 0) {
+			//	//throw std::domain_error("Cannot find inverse");
+			//	return false;
+			//}
+			//Matrix<T> adj(M.size(), M.size());
+			//adjoint(M, adj);
+			//for (int i = 0; i < M.size(); i++)
+			//	for (int j = 0; j < M.size(); j++)
+			//		inv.add(i, j, adj.getAt(i, j) / T(det));
+			//return true;
 		}
 
 		// TODO : refactor so it's much better code
