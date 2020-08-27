@@ -14,14 +14,14 @@ namespace matrices {
 
 		// public variables
 		std::vector<T> inner_; // set to private later
-		unsigned int dimx_, dimy_; // set to private later
+		int dimx_, dimy_; // set to private later
 
 		/// <summary>
 		/// Default constructor 
 		/// </summary>
 		/// <param name="dimx">Amount of columns</param>
 		/// <param name="dimy">Amount of rows</param>
-		Matrix(unsigned int dimx, unsigned int dimy)
+		Matrix(int dimx, int dimy)
 			: dimx_(dimx), dimy_(dimy) {
 			inner_.resize(dimx_ * dimy_);
 		}
@@ -77,10 +77,10 @@ namespace matrices {
 		/// </summary>
 		/// <param name="elimCol"></param>
 		/// <param name="elimRow"></param>
-		double getCofactor(int elimCol, int elimRow) {
+		double getCofactor(int elimCol, int elimRow, Matrix<T> matrix) {
 			if (dimx_ == 1 || dimy_ == 1)
 				throw std::out_of_range("Bro wot doing??");
-			return determinant(createSubMatrix((*this), elimRow, elimCol), dimx_ - 1) * pow(-1, elimCol + elimRow);
+			return determinant(createSubMatrix(matrix, elimRow, elimCol), matrix.dimx_ - 1) * pow(-1, elimCol + elimRow);
 		}
 
 		/// <summary>
@@ -106,8 +106,10 @@ namespace matrices {
 		/// <param name="arg">The matrix to compare against</param>
 		/// <returns>Whether the two are the same or not as a bool</returns>
 		bool operator==(Matrix<T> arg) {
-			if (isOutOfRange(arg))
-				throw std::invalid_argument("Matrix is out of range");
+			//if (isOutOfRange(arg))
+				//throw std::invalid_argument("Matrix is out of range");
+			if (inner_.size() == 0) return false;
+			if (arg.size() == 0) return false;
 			for (int i = 0; i < inner_.size(); i++)
 				if (inner_[i] != arg.inner_[i])
 					return false;
@@ -786,10 +788,10 @@ namespace matrices {
 			if (matrixHeight == 2)
 				return ((matrix.getAt(0, 0) * matrix.getAt(1, 1)) - (matrix.getAt(1, 0) * matrix.getAt(0, 1)));
 			for (int colElem = 0; colElem < matrixHeight; colElem++)
-				det += getCofactor(0, 0) * matrix[0][colElem];
+				det += getCofactor(0, colElem, matrix) * matrix[0][colElem];
 			return det;
 		}
-
+		
 		/// <summary>
 		/// Creates an adjoint matrix using asj
 		/// </summary>
