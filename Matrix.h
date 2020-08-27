@@ -17,17 +17,6 @@ namespace matrices {
 		unsigned int dimx_, dimy_; // set to private later
 
 		/// <summary>
-		/// Gets the cofactor of the matrix
-		/// </summary>
-		/// <param name="elimCol"></param>
-		/// <param name="elimRow"></param>
-		double getCofactor(int elimCol, int elimRow) {
-			if (dimx_ == 1 || dimy_ == 1)
-				throw std::out_of_range("Bro wot doing??");
-			return determinant(createSubMatrix((*this), elimRow, elimCol), dimx_ - 1) * pow(-1, elimCol + elimRow);
-		}
-
-		/// <summary>
 		/// Default constructor 
 		/// </summary>
 		/// <param name="dimx">Amount of columns</param>
@@ -40,26 +29,26 @@ namespace matrices {
 		/// <summary>
 		/// Returns a value at the specified position within the matrix
 		/// </summary>
-		/// <param name="x">Position in the row</param>
-		/// <param name="y">Position in the column</param>
+		/// <param name="col">Position in the row</param>
+		/// <param name="row">Position in the column</param>
 		/// <returns>Object requested</returns>
 		/// <remarks>Will throw an error if out of range</remarks>
-		T& getAt(unsigned int x, unsigned int y) {
-			if (isOutOfRange(x, y))
+		T& getAt(int col, int row) {
+			if (isOutOfRange(col, row))
 				throw std::out_of_range("Index out of range");
-			return inner_[dimx_ * y + x];
+			return inner_[dimx_ * row + col];
 		}
 
 		/// <summary>
 		/// Add an element to the metrix at a specific position
 		/// </summary>
 		/// <param name="value">The value to add to the matrix</param>
-		/// <param name="x">The column to add to</param>
-		/// <param name="y">The row to add to</param>
-		void add(T value, unsigned int x, unsigned int y) {
-			if (isOutOfRange(x, y))
+		/// <param name="col">The column to add to</param>
+		/// <param name="row">The row to add to</param>
+		void add(T value, int col, int row) {
+			if (isOutOfRange(col, row))
 				throw std::out_of_range("Index out of range");
-			inner_[dimx_ * y + x] = value;
+			inner_[dimx_ * row + col] = value;
 		}
 
 		// matrix operations
@@ -84,12 +73,23 @@ namespace matrices {
 		}
 
 		/// <summary>
-		/// 
+		/// Gets the cofactor of the matrix
+		/// </summary>
+		/// <param name="elimCol"></param>
+		/// <param name="elimRow"></param>
+		double getCofactor(int elimCol, int elimRow) {
+			if (dimx_ == 1 || dimy_ == 1)
+				throw std::out_of_range("Bro wot doing??");
+			return determinant(createSubMatrix((*this), elimRow, elimCol), dimx_ - 1) * pow(-1, elimCol + elimRow);
+		}
+
+		/// <summary>
+		/// Transposes this matrix
 		/// </summary>
 		void transpose() {
 			Matrix<T> temp = *this;
-			for (int i = 0; i < dimx_; i++)
-				inner_[dimx_ * i / dimy_ + i % dimx_] = temp.getAt(i / dimy_, i % dimx_);
+			for (int i = 0; i < dimy_ * dimx_; i++)
+				inner_[i] = temp.getAt(i / dimy_, i % dimx_);
 		}
 
 		/// <summary>
@@ -224,11 +224,11 @@ namespace matrices {
 		}
 
 		/// <summary>
-		/// Allows users to do Matrix[x][y]
+		/// Allows users to do Matrix[col][row]
 		/// </summary>
 		/// <param name="index"></param>
 		/// <returns></returns>
-		/// This is pretty inefficient but it does allow users to use the [x][y] as if
+		/// This is pretty inefficient but it does allow users to use the [col][row] as if
 		/// they are using a 2D array, perhaps find a better way to implement this
 		std::vector<T> operator[](int index) {
 			return getColumn(index);
@@ -260,13 +260,13 @@ namespace matrices {
 		}
 
 		/// <summary>
-		/// Gets an element at col x, row y
+		/// Gets an element at col, row
 		/// </summary>
-		/// <param name="x">The column</param>
-		/// <param name="y">The row</param>
-		/// <returns>The element at x,y</returns>
-		T& at(int x, int y) const {
-			return getAt(x, y);
+		/// <param name="col">The column</param>
+		/// <param name="row">The row</param>
+		/// <returns>The element at col,row</returns>
+		T& at(int col, int row) const {
+			return getAt(col, row);
 		}
 
 		/// <summary>
@@ -691,13 +691,13 @@ namespace matrices {
 		}
 
 		/// <summary>
-		/// Check if the number x,y is the same as rows,columns
+		/// Check if the number col,row is the same as rows,columns
 		/// </summary>
-		/// <param name="x">Columns to check</param>
-		/// <param name="y">Rows to check</param>
+		/// <param name="col">Columns to check</param>
+		/// <param name="row">Rows to check</param>
 		/// <returns></returns>
-		bool isOutOfRange(unsigned int x, unsigned int y) {
-			return x > dimx_ || y > dimy_ || x < 0 || y < 0;
+		bool isOutOfRange(int col, int row) {
+			return col > dimx_ || row > dimy_ || col < 0 || row < 0;
 		}
 
 		/// <summary>
@@ -780,7 +780,7 @@ namespace matrices {
 		/// <param name="matrixHeight">The height of the matrix, aka how many elements in the column</param>
 		/// <returns></returns>
 		double determinant(Matrix<T> matrix, int matrixHeight) { //to find determinant 
-			if (dimx_ != dimy_)
+			if (matrix.dimx_ != matrix.dimy_)
 				throw std::out_of_range("Bro wot doing??");
 			double det = 0;
 			if (matrixHeight == 2)
@@ -789,7 +789,7 @@ namespace matrices {
 				det += getCofactor(0, 0) * matrix[0][colElem];
 			return det;
 		}
-		
+
 		/// <summary>
 		/// Creates an adjoint matrix using asj
 		/// </summary>
