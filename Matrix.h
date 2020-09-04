@@ -69,7 +69,7 @@ namespace matrices {
 		/// <returns>The deteminant as an integer</returns>
 		/// TODO : add to a specialised templated class, won't work with matracies of types other than numbers
 		double getDeterminant() {
-			return determinant(*this, this->dimx_);
+			return 0.0; //determinant(*this, this->dimx_);
 		}
 
 		/// <summary>
@@ -77,10 +77,10 @@ namespace matrices {
 		/// </summary>
 		/// <param name="elimCol"></param>
 		/// <param name="elimRow"></param>
-		double getCofactor(int elimCol, int elimRow, Matrix<T> matrix) {
+		std::string getCofactor(int elimCol, int elimRow, Matrix<T> matrix) {
 			if (dimx_ == 1 || dimy_ == 1)
 				throw std::out_of_range("Bro wot doing??");
-			return determinant(createSubMatrix(matrix, elimRow, elimCol), matrix.dimx_ - 1) * pow(-1, elimCol + elimRow);
+			return (determinant(createSubMatrix(matrix, elimRow, elimCol), matrix.dimx_ - 1) + " * " + std::to_string(pow(-1, elimCol + elimRow)) + " ");
 		}
 
 		/// <summary>
@@ -781,14 +781,21 @@ namespace matrices {
 		/// <param name="matrix">The matrix to inverse</param>
 		/// <param name="matrixHeight">The height of the matrix, aka how many elements in the column</param>
 		/// <returns></returns>
-		double determinant(Matrix<T> matrix, int matrixHeight) { //to find determinant 
+		std::string determinant(Matrix<T> matrix, int matrixHeight) { //to find determinant 
 			if (matrix.dimx_ != matrix.dimy_)
 				throw std::out_of_range("Bro wot doing??");
-			double det = 0;
-			if (matrixHeight == 2)
-				return ((matrix.getAt(0, 0) * matrix.getAt(1, 1)) - (matrix.getAt(1, 0) * matrix.getAt(0, 1)));
+			std::string det = "";
+			if (matrixHeight == 2) 
+				return "(" + std::to_string(matrix.getAt(0, 0)) 
+				+ " * " 
+				+ std::to_string(matrix.getAt(1, 1))  + ")"
+				+ " - (" 
+				+ std::to_string(matrix.getAt(1, 0)) 
+				+ " * " 
+				+ std::to_string(matrix.getAt(0, 1)) 
+				+ ") ";
 			for (int colElem = 0; colElem < matrixHeight; colElem++)
-				det += getCofactor(0, colElem, matrix) * matrix[0][colElem];
+				det += "* " + getCofactor(0, colElem, matrix) + " * " + std::to_string(matrix[0][colElem]) + " ";
 			return det;
 		}
 		
