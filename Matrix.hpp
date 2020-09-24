@@ -4,6 +4,87 @@
 #include <string>
 #include <typeinfo>
 #include <iterator>
+#include <cmath>
+
+namespace mathUtils {
+
+	inline float abs(float x) {
+		float r;
+		__asm {
+			abs.s %0, %1 : =&f (r) : f(x)
+		}
+		return r;
+	}
+
+	inline float min(float a, float b) {
+		float r;
+		__asm {
+			min.s % 0, % 1, % 2 : = &f(r) : f(a), f(b)
+		}
+		return r;
+	}
+
+	inline float max(float a, float b) {
+		float r;
+		__asm {
+			max.s %0, %1, %2 : =&f (r) : f (a), f (b)
+		}
+		return r;
+	}
+
+	inline float sqrt(float x) {
+		float r;
+		__asm {
+			sqrt.s % 0, % 1 : = &f(r) : f(x)
+		}
+		return r;
+	}
+
+	inline float mod(float a, float b)
+	{
+		float r;
+		__asm {
+			.set push                
+			.set noreorder           
+			div.s  %0,  %1,    %2    
+			mtc1   $0,  $f8          
+			mfc1   $10, %0           
+			srl    $8,  $10,   23    
+			addiu  $9,  $0,    127+23
+			andi   $8,  $8,    0xff  
+			addiu  $12, $0,    1     
+			addiu  $11, $8,   -127   
+			subu   $8,  $9,    $8    
+			pmaxw  $8,  $8,    $0    
+			sllv   $8,  $12,   $8    
+			lui    $9,  0x8000       
+			negu   $8,  $8           
+			srl    $11, $11,   31    
+			movz   $9,  $8,    $11   
+			and    $10, $9,    $10   
+			mtc1   $10, %0           
+			adda.s %1,  $f8          
+			msub.s %0,  %2,    %0    
+			.set pop                 
+			: =&f (r)
+			: f (a), f (b)
+			: $8, $9, $10, $11, $12, $f8
+		}
+		return r;
+	}
+
+	inline float invSqrt(float x) {
+		return 1.0f / sqrt(x);
+	}
+
+	inline float sin(float x) {
+		return cos(x - _HALFPI);
+	}
+
+	inline float acos(float x) {
+		return _HALFPI - asin(x);
+	}
+}
 
 namespace matrices {
 
@@ -80,7 +161,7 @@ namespace matrices {
 		std::string getCofactor(int elimCol, int elimRow, Matrix<T> matrix) {
 			if (dimx_ == 1 || dimy_ == 1)
 				throw std::out_of_range("Bro wot doing??");
-			return (determinant(createSubMatrix(matrix, elimRow, elimCol), matrix.dimx_ - 1) + " * " + std::to_string(pow(-1, elimCol + elimRow)) + " ");
+			return (determinant(createSubMatrix(matrix, elimRow, elimCol), matrix.dimx_ - 1) + " * " + std::to_string((int)pow(-1, elimCol + elimRow)) + " ");
 		}
 
 		/// <summary>
