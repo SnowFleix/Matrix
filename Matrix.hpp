@@ -7,6 +7,10 @@
 #include <cmath>
 
 namespace mathUtils {
+	
+	#define _PI     3.1415926535897932384626433832795f
+	#define _TWOPI  6.283185307179586476925286766559f
+	#define _HALFPI 1.5707963267948966192313216916398f
 
 	inline float abs(float x) {
 		float r;
@@ -36,6 +40,136 @@ namespace mathUtils {
 		float r;
 		__asm {
 			sqrt.s % 0, % 1 : = &f(r) : f(x)
+		}
+		return r;
+	}
+
+	float cos(float x)
+	{
+		float r;
+		__asm {
+			lui     $9,  0x3f00       
+			.set noreorder            
+			.align 3                  
+			abs.s   %0,  %1           
+			lui     $8,  0xbe22       
+			mtc1    $9,  $f1          
+			ori     $8,  $8,    0xf983
+			mtc1    $8,  $f8          
+			lui     $9,  0x4b00       
+			mtc1    $9,  $f3          
+			lui     $8,  0x3f80       
+			mtc1    $8,  $f2          
+			mula.s  %0,  $f8          
+			msuba.s $f3, $f2          
+			madda.s $f3, $f2          
+			lui     $8,  0x40c9       
+			msuba.s %0,  $f8          
+			ori     $8,  0x0fdb       
+			msub.s  %0,  $f1,   $f2   
+			lui     $9,  0xc225       
+			abs.s   %0,  %0           
+			lui     $10, 0x3e80       
+			mtc1    $10, $f7          
+			ori     $9,  0x5de1       
+			sub.s   %0,  %0,    $f7   
+			lui     $10, 0x42a3       
+			mtc1    $8,  $f3          
+			ori     $10, 0x3458       
+			mtc1    $9,  $f4          
+			lui     $8,  0xc299       
+			mtc1    $10, $f5          
+			ori     $8,  0x2663       
+			mul.s   $f8, %0,    %0    
+			lui     $9,  0x421e       
+			mtc1    $8,  $f6          
+			ori     $9,  0xd7bb       
+			mtc1    $9,  $f7          
+			nop                       
+			mul.s   $f1, %0,    $f8   
+			mul.s   $f9, $f8,   $f8   
+			mula.s  $f3, %0           
+			mul.s   $f2, $f1,   $f8   
+			madda.s $f4, $f1          
+			mul.s   $f1, $f1,   $f9   
+			mul.s   %0,  $f2,   $f9   
+			madda.s $f5, $f2          
+			madda.s $f6, $f1          
+			madd.s  %0,  $f7,   %0    
+			.set reorder              
+			: =&f (r)
+			: f (x)
+			: $f1, $f2, $f3, $f4, $f5, $f6, $f7, $f8, $f9, $8, $9, $10
+		}
+		return r;
+	}
+
+	float asin(float x)
+	{
+		float r;
+		__asm {
+			.set noreorder            
+			.align 3                  
+			lui     $8,  0x3f80       
+			mtc1    $0,  $f8          
+			mtc1    $8,  $f1          
+			lui     $8,  0x3f35       
+			mfc1    $9,  %1           
+			ori     $8,  $8,    0x04f3
+			adda.s  $f1, $f8          
+			lui     $10, 0x8000       
+			msub.s  $f2, %1,    %1    
+			not     $11, $10          
+			and     $11, $9,    $11   
+			subu    $8,  $8,    $11   
+			nop                       
+			and     $9,  $9,    $10   
+			sqrt.s  $f2, $f2          
+			srl     $8,  $8,    31    
+			abs.s   %0,  %1           
+			lui     $11, 0x3fc9       
+			ori     $11, 0x0fdb       
+			or      $11, $9,    $11   
+			movz    $11, $0,    $8    
+			xor     $10, $9,    $10   
+			mtc1    $11, $f6          
+			movz    $10, $9,    $8    
+			min.s   %0,  $f2,   %0    
+			lui     $9,  0x3e2a       
+			lui     $8,  0x3f80       
+			ori     $9,  $9,    0xaaab
+			or      $8,  $10,   $8    
+			or      $9,  $10,   $9    
+			mtc1    $8,  $f3          
+			lui     $8,  0x3d99       
+			mul.s   $f7, %0,    %0    
+			ori     $8,  $8,    0x999a
+			mtc1    $9,  $f4          
+			lui     $9,  0x3d36       
+			or      $8,  $10,   $8    
+			ori     $9,  $9,    0xdb6e
+			mtc1    $8,  $f5          
+			or      $9,  $10,   $9    
+			mul.s   $f1, %0,    $f7   
+			lui     $8,  0x3cf8       
+			adda.s  $f6, $f8          
+			ori     $8,  $8,    0xe38e
+			mul.s   $f8, $f7,   $f7   
+			or      $8,  $10,   $8    
+			madda.s $f3, %0           
+			mul.s   $f2, $f1,   $f7   
+			madda.s $f4, $f1          
+			mtc1    $9,  $f6          
+			mul.s   $f1, $f1,   $f8   
+			mul.s   %0,  $f2,   $f8   
+			mtc1    $8,  $f7          
+			madda.s $f5, $f2          
+			madda.s $f6, $f1          
+			madd.s  %0,  $f7,   %0    
+			.set reorder              
+			: =&f (r)
+			: f (x)
+			: $f1, $f2, $f3, $f4, $f5, $f6, $f7, $f8
 		}
 		return r;
 	}
