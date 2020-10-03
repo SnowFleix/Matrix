@@ -4,6 +4,7 @@
 #include <string>
 #include <typeinfo>
 #include <iterator>
+#include <cmath>
 
 namespace matrices {
 
@@ -11,17 +12,16 @@ namespace matrices {
 	class Matrix {
 
 	public:
-
 		// public variables
 		std::vector<T> inner_; // set to private later
-		unsigned int dimx_, dimy_; // set to private later
+		int dimx_, dimy_; // set to private later
 
 		/// <summary>
 		/// Default constructor 
 		/// </summary>
 		/// <param name="dimx">Amount of columns</param>
 		/// <param name="dimy">Amount of rows</param>
-		Matrix(unsigned int dimx, unsigned int dimy)
+		Matrix(int dimx, int dimy)
 			: dimx_(dimx), dimy_(dimy) {
 			inner_.resize(dimx_ * dimy_);
 		}
@@ -40,7 +40,7 @@ namespace matrices {
 		}
 
 		/// <summary>
-		/// Add an element to the metrix at a specific position
+		/// Add an element to the matrix at a specific position
 		/// </summary>
 		/// <param name="value">The value to add to the matrix</param>
 		/// <param name="col">The column to add to</param>
@@ -51,36 +51,38 @@ namespace matrices {
 			inner_[dimx_ * row + col] = value;
 		}
 
-		// matrix operations
-
 		/// <summary>
 		/// Inverts the matrix
 		/// </summary>
 		void invert() {
 			if (dimx_ != dimy_)
 				throw std::invalid_argument("Matrix is not n by n");
-			if (!inverse(*this, *this))
-				throw std::domain_error("Cannot find inverse");
+			double det = getDeterminant();
+			Matrix<double> temp(dimx_, dimy_);
+			for (int i = 0; i < dimx_; i++)
+				for (int j = 0; j < dimy_; j++)
+					temp.add(getCofactor(i, j, *this), i, j);
+			(*this) = temp;
+			scalarMultiply(1 / det);
 		}
 
 		/// <summary>
-		/// Returns the deteminant of the matrix
+		/// Returns the determinant of the matrix
 		/// </summary>
 		/// <returns>The deteminant as an integer</returns>
-		/// TODO : add to a specialised templated class, won't work with matracies of types other than numbers
+		/// TODO : add to a specialised templated class, won't work with matrices of types other than numbers
 		double getDeterminant() {
-			return determinant(*this, this->dimx_);
+			return determinant(*this);
 		}
 
 		/// <summary>
-		/// Gets the cofactor of the matrix
+		/// Returns the cofactor of the element at position row, col
 		/// </summary>
-		/// <param name="elimCol"></param>
-		/// <param name="elimRow"></param>
-		double getCofactor(int elimCol, int elimRow) {
-			if (dimx_ == 1 || dimy_ == 1)
-				throw std::out_of_range("Bro wot doing??");
-			return determinant(createSubMatrix((*this), elimRow, elimCol), dimx_ - 1) * pow(-1, elimCol + elimRow);
+		/// <param name="col">The column where the element is</param>
+		/// <param name="row">The row where the element is</param>
+		/// <returns></returns>
+		double getCofactorOf(int col, int row) {
+			return getCofactor(row, col, *this);
 		}
 
 		/// <summary>
@@ -95,19 +97,29 @@ namespace matrices {
 		/// <summary>
 		/// Normalises the matrix
 		/// </summary>
-		/// TODO : implement normalisation
-		void normalise() {}
+		void normalise() {
+			double sum = 0.0;
+			for (int i = 0; i < vecSize(); i++)
+				sum += pow(inner_[i], 2);
+			if (sum == 1)
+				return;
+			for (int i = 0; i < vecSize(); i++)
+				inner_[i] /= sqrt(sum);
+			std::cout << sum << std::endl;
+		}
 
 		// operators
 
 		/// <summary>
-		/// Checks if two matracies contain the same values
+		/// Checks if two matrices contain the same values
 		/// </summary>
 		/// <param name="arg">The matrix to compare against</param>
 		/// <returns>Whether the two are the same or not as a bool</returns>
 		bool operator==(Matrix<T> arg) {
-			if (isOutOfRange(arg))
-				throw std::invalid_argument("Matrix is out of range");
+			//if (isOutOfRange(arg))
+				//throw std::invalid_argument("Matrix is out of range");
+			if (inner_.size() == 0) return false;
+			if (arg.size() == 0) return false;
 			for (int i = 0; i < inner_.size(); i++)
 				if (inner_[i] != arg.inner_[i])
 					return false;
@@ -115,7 +127,7 @@ namespace matrices {
 		}
 
 		/// <summary>
-		/// Checks if the two matricies are not the same
+		/// Checks if the two matrices are not the same
 		/// </summary>
 		/// <param name="arg">The matrix to compare</param>
 		/// <returns>Bool</returns>
@@ -183,8 +195,12 @@ namespace matrices {
 		/// <param name="arg"></param>
 		/// <returns></returns>
 		Matrix<T> operator/(Matrix<T> arg) {
-			//TODO : find a way to properly divide
-			return *this;
+			Matrix<T> returnMatrix(dimy_, dimx_);
+			Matrix<T> temp(dimy_, dimx_);
+			temp = (*this);
+			invert();
+			multiply(*this, temp, returnMatrix);
+			return returnMatrix;
 		}
 
 		/// <summary>
@@ -220,7 +236,7 @@ namespace matrices {
 		/// <param name="arg"></param>
 		/// <returns></returns>
 		Matrix<T>& operator/=(T arg) {
-			return *this / arg;;
+			return *this / arg;
 		}
 
 		/// <summary>
@@ -312,6 +328,21 @@ namespace matrices {
 		void fill(T objToFill) {
 			for (int i = 0; i < inner_.size(); i++)
 				inner_[i] = objToFill;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		std::string toString() {
+			std::string builder = "";
+			for (int loop = 0; loop < vecSize(); loop++) {
+				if (loop % dimx_ == 0 && loop != 0) {
+					builder += "\n";
+				}
+				builder += "(" + std::to_string(getAt(loop % dimx_, loop / dimy_)) + ") ";
+			}
+			return builder;
 		}
 
 #ifdef ROOT_TH1
@@ -517,6 +548,7 @@ namespace matrices {
 #endif
 
 #ifdef ROOT_TMatrixT
+
 #ifdef ROOT_TMatrix
 
 		/// <summary>
@@ -750,28 +782,13 @@ namespace matrices {
 		}
 
 		/// <summary>
-		/// 
+		/// Multiplies the whole matrix by a single double
 		/// </summary>
-		/// <param name="matrix"></param>
-		/// <param name="row"></param>
-		/// <param name="col"></param>
-		/// <returns></returns>
-		Matrix<T> createSubMatrix(Matrix<T> matrix, int elimRow, int elimCol) {
-			Matrix<T> temp(matrix.dimx_ - 1, matrix.dimx_ - 1);
-			for (int i = 0; i < matrix.size(); i++) { //Copy only those elements which are not in given row r and column c: 
-				int row = i / matrix.dimy_; int col = i % matrix.dimx_;
-				if (row != elimRow && col != elimCol) {
-					if (row > elimRow)
-						row -= 1;
-					if (col > elimCol)
-						col -= 1;
-					temp.add(matrix.inner_[i], row, col); //If row is filled increase r index and reset c index
-				}
-			}
-			return temp;
+		/// <param name="product">The value to multiply with</param>
+		void scalarMultiply(double product) {
+			for (int i = 0; i < inner_.size(); i++)
+				inner_[i] *= product;
 		}
-
-		// TODO : rename all the one letter variables to something actually meaningful and useful
 
 		/// <summary>
 		/// Gets the determinant of the matrix
@@ -779,74 +796,56 @@ namespace matrices {
 		/// <param name="matrix">The matrix to inverse</param>
 		/// <param name="matrixHeight">The height of the matrix, aka how many elements in the column</param>
 		/// <returns></returns>
-		double determinant(Matrix<T> matrix, int matrixHeight) { //to find determinant 
+		double determinant(Matrix<T> matrix) {
 			if (matrix.dimx_ != matrix.dimy_)
 				throw std::out_of_range("Bro wot doing??");
-			double det = 0;
-			if (matrixHeight == 2)
-				return ((matrix.getAt(0, 0) * matrix.getAt(1, 1)) - (matrix.getAt(1, 0) * matrix.getAt(0, 1)));
-			for (int colElem = 0; colElem < matrixHeight; colElem++)
-				det += getCofactor(0, 0) * matrix[0][colElem];
+			double det = 0.0;
+			if (matrix.dimy_ == 2)
+				return (matrix.getAt(0, 0) * matrix.getAt(1, 1)) - (matrix.getAt(1, 0) * matrix.getAt(0, 1));
+			for (int rowElem = 0; rowElem < matrix.dimx_; rowElem++)
+				det += getCofactor(0, rowElem, matrix) * matrix.getAt(rowElem, 0);
 			return det;
 		}
 
 		/// <summary>
-		/// Creates an adjoint matrix using asj
+		/// Gets the cofactor of the matrix
 		/// </summary>
-		/// <param name="M">The matrix to inverse</param>
-		/// <param name="adj">The adjoint matrix, another out matrix</param>
-		void adjoint(Matrix<T>& M, Matrix<T>& adj) {
-			////to find adjoint matrix 
-			//if (M.size() == 1) {
-			//	adj.getAt(0, 0) = 1;
-			//	return;
-			//}
-			//int s = 1;
-			//Matrix<T> t(M.size(), M.size());
-			//for (int i = 0; i < M.size(); i++) {
-			//	for (int j = 0; j < M.size(); j++) {
-			//		//To get cofactor of M[i][j]
-			//		getCofactor(M, t, i, j, M.size());
-			//		s = ((i + j) % 2 == 0) ? 1 : -1; //sign of adj[j][i] positive if sum of row and column indexes is even.
-			//		adj.add(j, i, (s) * (determinant(t, dimx_() - 1))); //Interchange rows and columns to get the transpose of the cofactor matrix
-			//	}
-			//}
+		/// <param name="elimCol">The column to eliminate when the submatrix is made</param>
+		/// <param name="elimRow">The row to eliminate when the submatrix is made</param>
+		double getCofactor(int elimRow, int elimCol, Matrix<T> matrix) {
+			if (dimx_ == 1 || dimy_ == 1)
+				throw std::out_of_range("Bro wot doing??");
+			return (determinant(createSubMatrix(matrix, elimRow, elimCol)) * pow(-1, elimCol + elimRow));
 		}
 
 		/// <summary>
-		/// Inverts the matrix
+		/// Creates a sub matrix without the specified row and column 
 		/// </summary>
-		/// <param name="M">The matrix to inverse</param>
-		/// <param name="inv">The inverse aka the out matrix</param>
+		/// <param name="matrix"></param>
+		/// <param name="row"></param>
+		/// <param name="col"></param>
 		/// <returns></returns>
-		bool inverse(Matrix<T> M, Matrix<T>& inv) {
-			//// fix later
-			////if (!(isInt32() || isDouble() || isFloat() || isShort()))
-			//	//throw std::invalid_argument("The matrix is not a valid type");
-			//int det = determinant(M, M.dimx_);
-			//if (det == 0) {
-			//	//throw std::domain_error("Cannot find inverse");
-			//	return false;
-			//}
-			//Matrix<T> adj(M.size(), M.size());
-			//adjoint(M, adj);
-			//for (int i = 0; i < M.size(); i++)
-			//	for (int j = 0; j < M.size(); j++)
-			//		inv.add(i, j, adj.getAt(i, j) / T(det));
-			//return true;
+		Matrix<T> createSubMatrix(Matrix<T> matrix, int elimRow, int elimCol) {
+			Matrix<T> temp(matrix.dimx_ - 1, matrix.dimx_ - 1);
+			for (int i = 0; i < matrix.vecSize(); i++) { //Copy only those elements which are not in given row r and column c: 
+				int row = i / matrix.dimy_;
+				int col = i % matrix.dimx_;
+				if (row != elimRow && col != elimCol) {
+					if (row > elimRow)
+						row -= 1;
+					if (col > elimCol)
+						col -= 1;
+
+					temp.add(matrix.inner_[i], col, row); //If row is filled increase r index and reset c index
+				}
+			}
+			return temp;
 		}
 
 		// TODO : refactor so it's much better code
 		// outputs the matrix in text format
 		friend std::ostream& operator<<(std::ostream& os, Matrix<T>& matrix) {
-			std::string builder = "";
-			for (int loop = 0; loop < matrix.vecSize(); loop++) {
-				if (loop % matrix.dimx_ == 0 && loop != 0) {
-					builder += "\n";
-				}
-				builder += "(" + std::to_string(matrix.getAt(loop % matrix.dimx_, loop / matrix.dimy_)) + ") ";
-			}
-			os << builder;
+			os << matrix.toString();
 			return os;
 		}
 	};
