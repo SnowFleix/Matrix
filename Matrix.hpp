@@ -57,8 +57,13 @@ namespace matrices {
 		void invert() {
 			if (dimx_ != dimy_)
 				throw std::invalid_argument("Matrix is not n by n");
-			if (!inverse(*this, *this))
-				throw std::domain_error("Cannot find inverse");
+			double det = getDeterminant();
+			Matrix<double> temp(dimx_, dimy_);
+			for (int i = 0; i < dimx_; i++)
+				for (int j = 0; j < dimy_; j++)
+					temp.add(getCofactor(i, j, *this), i, j);
+			(*this) = temp;
+			scalarMultiply(1 / det);
 		}
 
 		/// <summary>
@@ -92,8 +97,16 @@ namespace matrices {
 		/// <summary>
 		/// Normalises the matrix
 		/// </summary>
-		/// TODO : implement normalisation
-		void normalise() {}
+		void normalise() {
+			double sum = 0.0;
+			for (int i = 0; i < vecSize(); i++)
+				sum += pow(inner_[i], 2);
+			if (sum == 1)
+				return;
+			for (int i = 0; i < vecSize(); i++)
+				inner_[i] /= sqrt(sum);
+			std::cout << sum << std::endl;
+		}
 
 		// operators
 
@@ -182,8 +195,12 @@ namespace matrices {
 		/// <param name="arg"></param>
 		/// <returns></returns>
 		Matrix<T> operator/(Matrix<T> arg) {
-			//TODO : find a way to properly divide
-			return *this;
+			Matrix<T> returnMatrix(dimy_, dimx_);
+			Matrix<T> temp(dimy_, dimx_);
+			temp = (*this);
+			invert();
+			multiply(*this, temp, returnMatrix);
+			return returnMatrix;
 		}
 
 		/// <summary>
@@ -219,7 +236,7 @@ namespace matrices {
 		/// <param name="arg"></param>
 		/// <returns></returns>
 		Matrix<T>& operator/=(T arg) {
-			return *this / arg;;
+			return *this / arg;
 		}
 
 		/// <summary>
@@ -765,6 +782,15 @@ namespace matrices {
 		}
 
 		/// <summary>
+		/// Multiplies the whole matrix by a single double
+		/// </summary>
+		/// <param name="product">The value to multiply with</param>
+		void scalarMultiply(double product) {
+			for (int i = 0; i < inner_.size(); i++)
+				inner_[i] *= product;
+		}
+
+		/// <summary>
 		/// Gets the determinant of the matrix
 		/// </summary>
 		/// <param name="matrix">The matrix to inverse</param>
@@ -814,52 +840,6 @@ namespace matrices {
 				}
 			}
 			return temp;
-		}
-
-		/// <summary>
-		/// Creates an adjoint matrix using asj
-		/// </summary>
-		/// <param name="M">The matrix to inverse</param>
-		/// <param name="adj">The adjoint matrix, another out matrix</param>
-		void adjoint(Matrix<T>& M, Matrix<T>& adj) {
-			////to find adjoint matrix 
-			//if (M.size() == 1) {
-			//	adj.getAt(0, 0) = 1;
-			//	return;
-			//}
-			//int s = 1;
-			//Matrix<T> t(M.size(), M.size());
-			//for (int i = 0; i < M.size(); i++) {
-			//	for (int j = 0; j < M.size(); j++) {
-			//		//To get cofactor of M[i][j]
-			//		getCofactor(M, t, i, j, M.size());
-			//		s = ((i + j) % 2 == 0) ? 1 : -1; //sign of adj[j][i] positive if sum of row and column indexes is even.
-			//		adj.add(j, i, (s) * (determinant(t, dimx_() - 1))); //Interchange rows and columns to get the transpose of the cofactor matrix
-			//	}
-			//}
-		}
-
-		/// <summary>
-		/// Inverts the matrix
-		/// </summary>
-		/// <param name="M">The matrix to inverse</param>
-		/// <param name="inv">The inverse aka the out matrix</param>
-		/// <returns></returns>
-		bool inverse(Matrix<T> M, Matrix<T>& inv) {
-			//// fix later
-			////if (!(isInt32() || isDouble() || isFloat() || isShort()))
-			//	//throw std::invalid_argument("The matrix is not a valid type");
-			//int det = determinant(M, M.dimx_);
-			//if (det == 0) {
-			//	//throw std::domain_error("Cannot find inverse");
-			//	return false;
-			//}
-			//Matrix<T> adj(M.size(), M.size());
-			//adjoint(M, adj);
-			//for (int i = 0; i < M.size(); i++)
-			//	for (int j = 0; j < M.size(); j++)
-			//		inv.add(i, j, adj.getAt(i, j) / T(det));
-			//return true;
 		}
 
 		// TODO : refactor so it's much better code
