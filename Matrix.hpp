@@ -70,7 +70,7 @@ namespace matrices {
 		/// <returns>The deteminant as an integer</returns>
 		/// TODO : add to a specialised templated class, won't work with matracies of types other than numbers
 		double getDeterminant() {
-			return 0.0; //determinant(*this, this->dimx_);
+			return determinant(*this);
 		}
 
 		/// <summary>
@@ -81,7 +81,7 @@ namespace matrices {
 		double getCofactor(int elimCol, int elimRow, Matrix<T> matrix) {
 			if (dimx_ == 1 || dimy_ == 1)
 				throw std::out_of_range("Bro wot doing??");
-			return (determinant(createSubMatrix(matrix, elimRow, elimCol), matrix.dimx_ - 1) * pow(-1, elimCol + elimRow));
+			return (determinant(createSubMatrix(matrix, elimRow, elimCol)) * pow(-1, elimCol + elimRow));
 		}
 
 		/// <summary>
@@ -768,7 +768,7 @@ namespace matrices {
 						row -= 1;
 					if (col > elimCol)
 						col -= 1;
-					temp.add(matrix.inner_[i], row, col); //If row is filled increase r index and reset c index
+					temp.add(matrix.inner_[i], col, row); //If row is filled increase r index and reset c index
 				}
 			}
 			return temp;
@@ -782,12 +782,13 @@ namespace matrices {
 		/// <param name="matrix">The matrix to inverse</param>
 		/// <param name="matrixHeight">The height of the matrix, aka how many elements in the column</param>
 		/// <returns></returns>
-		double determinant(Matrix<T> matrix, int matrixHeight) { //to find determinant 
+		double determinant(Matrix<T> matrix) { //to find determinant 
 			if (matrix.dimx_ != matrix.dimy_)
 				throw std::out_of_range("Bro wot doing??");
-			if (matrixHeight == 2) 
+			double det = 0.0;
+			if (matrix.dimy_ == 2) 
 				return (matrix.getAt(0, 0) *  matrix.getAt(1, 1)) - (matrix.getAt(1, 0) * matrix.getAt(0, 1));
-			for (int colElem = 0; colElem < matrixHeight; colElem++)
+			for (int colElem = 0; colElem < matrix.dimy_; colElem++)
 				det *= getCofactor(0, colElem, matrix) * matrix[0][colElem];
 			return det;
 		}
