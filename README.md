@@ -167,6 +167,7 @@ When using the code it is important to make note that the class is provided as i
 ## Authors
 
 Felix England
+Nuno Taborda
 
 ## Acknowledgments
 
